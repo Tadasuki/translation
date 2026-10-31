@@ -190,7 +190,7 @@ test('GitHub Actions 应上传各平台安装包产物', () => {
   assert.match(workflow, /dist\/SelectionTranslator-\*-mac-arm64\.dmg/u)
   assert.match(workflow, /dist\/SelectionTranslator-\*-mac-x64\.zip/u)
   assert.match(workflow, /dist\/SelectionTranslator-\*-mac-arm64\.zip/u)
-  assert.match(workflow, /dist\/SelectionTranslator-\*-Setup-\*\.exe/u)
+  assert.match(workflow, /dist\/SelectionTranslator-\*-Setup\*\.exe/u)
   assert.match(workflow, /dist\/SelectionTranslator-\*\.AppImage/u)
   assert.match(workflow, /dist\/latest\*\.yml/u)
   assert.match(workflow, /dist\/\*\.blockmap/u)
