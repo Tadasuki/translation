@@ -1,0 +1,126 @@
+name: 发布已验证安装包
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: 所有平台打包成功的工作流运行 ID
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: promote-release
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: 验证源构建的全部测试和平台任务
+        id: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_RUN_ID" =~ ^[0-9]+$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID" > source-run.json
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID/jobs?per_page=100" > source-jobs.json
+          node <<'JS'
+          const fs = require('node:fs'), assert = require('node:assert/strict');
+          const run = JSON.parse(fs.readFileSync('source-run.json'));
+          const jobs = JSON.parse(fs.readFileSync('source-jobs.json')).jobs;
+          assert.equal(run.path, '.github/workflows/package.yml');
+          assert.equal(run.head_branch, 'main');
+          assert.equal(run.repository.full_name, process.env.GITHUB_REPOSITORY);
+          assert.equal(run.status, 'completed');
+          assert.equal(run.run_attempt, 1, 'Use one complete build attempt for consistent build identities');
+          const required = ['测试与类型检查', '打包 macOS x64', '打包 macOS arm64', '打包 Windows', '打包 Windows 7 x64', '打包 Linux'];
+          for (const name of required) assert.equal(jobs.find(job => job.name === name)?.conclusion, 'success', name);
+          assert.match(run.head_sha, /^[0-9a-f]{40}$/);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `sha=${run.head_sha}\nattempt=${run.run_attempt}\n`);
+          JS
+
+      - name: 检出安装包对应的原始源码
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.source.outputs.sha }}
+          path: source
+
+      - name: 安装元数据工具依赖
+        working-directory: source
+        run: npm ci --ignore-scripts
+
+      - name: 下载同一构建的全部平台安装包
+        uses: actions/download-artifact@v8
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.source_run_id }}
+          pattern: packages-*
+          path: release-assets
+          merge-multiple: true
+
+      - name: 校验包集合与生成更新元数据
+        working-directory: source
+        env:
+          GITHUB_RUN_ID: ${{ inputs.source_run_id }}
+          GITHUB_RUN_ATTEMPT: ${{ steps.source.outputs.attempt }}
+          GITHUB_SHA: ${{ steps.source.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/generate-checksums.mjs --directory ../release-assets
+          node scripts/merge-mac-update-info.mjs --directory ../release-assets
+          node scripts/generate-build-info.mjs --output ../release-assets/build-info.json
+          node scripts/generate-build-info.mjs --output ../release-assets/build-info.json --check
+          node <<'JS'
+          const fs = require('node:fs'), assert = require('node:assert/strict'), yaml = require('js-yaml');
+          const root = '../release-assets', names = fs.readdirSync(root), version = require('./package.json').version;
+          const suffixes = ['mac-arm64.dmg','mac-arm64.zip','mac-x64.dmg','mac-x64.zip','Setup.exe','Setup-x64.exe','Setup-arm64.exe','Setup-win7-x64.exe','x86_64.AppImage','arm64.AppImage'];
+          for (const suffix of suffixes) assert(names.includes(`SelectionTranslator-${version}-${suffix}`), suffix);
+          assert(!names.some(name => name.includes('__uninstaller')));
+          for (const name of names.filter(name => /^latest.*\.yml$/.test(name))) {
+            const data = yaml.load(fs.readFileSync(`${root}/${name}`, 'utf8'));
+            assert.equal(data.version, version);
+            for (const file of data.files ?? []) assert(names.includes(decodeURIComponent(file.url.split('/').pop())), file.url);
+            if (data.path) assert(names.includes(decodeURIComponent(data.path.split('/').pop())), data.path);
+          }
+          fs.appendFileSync(process.env.GITHUB_ENV, `RELEASE_TAG=v${version}\nRELEASE_VERSION=${version}\n`);
+          JS
+
+      - name: 创建固定源码标签并上传 Release 草稿
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! existing="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$RELEASE_TAG" --jq '.object.sha' 2>/dev/null)"; then
+            existing=""
+          fi
+          if [[ -n "$existing" && "$existing" != "$SOURCE_SHA" ]]; then
+            echo 'Refusing to move an existing release tag.' >&2
+            exit 1
+          fi
+          if [[ -z "$existing" ]]; then
+            gh api "repos/$GITHUB_REPOSITORY/git/refs" --method POST -f "ref=refs/tags/$RELEASE_TAG" -f "sha=$SOURCE_SHA" >/dev/null
+          fi
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            [[ "$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft)" == true ]]
+          else
+            gh release create "$RELEASE_TAG" --verify-tag --draft --title "V$RELEASE_VERSION" --notes-file "source/docs/releases/$RELEASE_TAG.md"
+          fi
+          gh release upload "$RELEASE_TAG" release-assets/* --clobber
+          echo 'All installers are uploaded to a draft. Verify checksums before publishing.' >> "$GITHUB_STEP_SUMMARY"

@@ -324,7 +324,9 @@ jobs:
           # Only create a tag after all platform builds pass. GITHUB_TOKEN avoids
           # starting another tag-triggered build for this manual release.
           if [[ "$GITHUB_REF" != refs/tags/* ]]; then
-            existing="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$RELEASE_TAG" --jq '.object.sha' 2>/dev/null || true)"
+            if ! existing="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$RELEASE_TAG" --jq '.object.sha' 2>/dev/null)"; then
+              existing=""
+            fi
             if [[ -n "$existing" && "$existing" != "$GITHUB_SHA" ]]; then
               echo "Tag $RELEASE_TAG already points to a different object; refusing to move it." >&2
               exit 1
