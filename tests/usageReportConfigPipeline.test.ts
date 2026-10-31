@@ -160,3 +160,31 @@ test('打包后应非敏感校验使用量上报配置', () => {
   assert.match(validator, /reportTo/u)
   assert.match(validator, /smtpPass:\s*Boolean\(config\.smtpPass\)/u)
 })
+
+test('发行构建可以显式禁用未配置的邮件统计，默认严格模式仍拒绝空凭据', () => {
+  const directory = createTemporaryDirectory()
+  try {
+    const path = join(directory, 'disabled.json')
+    writeFileSync(path, JSON.stringify({ smtpUser: '', smtpPass: '', reportTo: '' }))
+    const command = ['scripts/validate-usage-report-config.mjs', '--output', path]
+    const strict = spawnSync(process.execPath, command, { encoding: 'utf8' })
+    const disabled = spawnSync(process.execPath, [...command, '--allow-disabled'], { encoding: 'utf8' })
+    assert.equal(strict.status, 1)
+    assert.equal(disabled.status, 0, disabled.stderr)
+    assert.match(disabled.stdout, /保持关闭/u)
+    assert.match(readFileSync(workflowPath, 'utf8'), /validate-usage-report-config\.mjs[^\n]*--allow-disabled/u)
+  } finally { rmSync(directory, { recursive: true, force: true }) }
+})
+
+test('允许关闭统计时仍拒绝部分注入的凭据或缺失配置字段', () => {
+  const directory = createTemporaryDirectory()
+  try {
+    const path = join(directory, 'partial.json')
+    for (const config of [{ smtpUser: 'private-user', smtpPass: '', reportTo: '' }, {}]) {
+      writeFileSync(path, JSON.stringify(config))
+      const result = spawnSync(process.execPath, ['scripts/validate-usage-report-config.mjs', '--output', path, '--allow-disabled'], { encoding: 'utf8' })
+      assert.equal(result.status, 1)
+      assert.doesNotMatch(result.stderr + result.stdout, /private-user/u)
+    }
+  } finally { rmSync(directory, { recursive: true, force: true }) }
+})

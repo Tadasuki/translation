@@ -33,6 +33,11 @@ function main() {
       smtpPass: Boolean(config.smtpPass),
       reportTo: Boolean(config.reportTo)
     }
+    const explicitlyDisabled = ['smtpUser', 'smtpPass', 'reportTo'].every((field) => config[field] === '')
+    if (process.argv.includes('--allow-disabled') && explicitlyDisabled) {
+      console.log('[usage-report-config] 未配置邮件统计，功能保持关闭')
+      return
+    }
     if (!injected.smtpUser || !injected.smtpPass || !injected.reportTo) {
       console.error(
         `[usage-report-config] 校验失败：凭据未完整注入（${JSON.stringify(injected)}）`
