@@ -76,19 +76,24 @@ jobs:
       - name: 校验包集合与生成更新元数据
         working-directory: source
         env:
-          GITHUB_RUN_ID: ${{ inputs.source_run_id }}
-          GITHUB_RUN_ATTEMPT: ${{ steps.source.outputs.attempt }}
-          GITHUB_SHA: ${{ steps.source.outputs.sha }}
+          SOURCE_ATTEMPT: ${{ steps.source.outputs.attempt }}
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
         shell: bash
         run: |
           set -euo pipefail
           node scripts/generate-checksums.mjs --directory ../release-assets
           node scripts/merge-mac-update-info.mjs --directory ../release-assets
-          node scripts/generate-build-info.mjs --output ../release-assets/build-info.json
-          node scripts/generate-build-info.mjs --output ../release-assets/build-info.json --check
+          env GITHUB_RUN_ID="$SOURCE_RUN_ID" GITHUB_RUN_ATTEMPT="$SOURCE_ATTEMPT" GITHUB_SHA="$SOURCE_SHA" \
+            node scripts/generate-build-info.mjs --output ../release-assets/build-info.json
+          env GITHUB_RUN_ID="$SOURCE_RUN_ID" GITHUB_RUN_ATTEMPT="$SOURCE_ATTEMPT" GITHUB_SHA="$SOURCE_SHA" \
+            node scripts/generate-build-info.mjs --output ../release-assets/build-info.json --check
           node <<'JS'
           const fs = require('node:fs'), assert = require('node:assert/strict'), yaml = require('js-yaml');
           const root = '../release-assets', names = fs.readdirSync(root), version = require('./package.json').version;
+          const metadata = JSON.parse(fs.readFileSync(`${root}/build-info.json`, 'utf8'));
+          assert.equal(metadata.sourceCommit, process.env.SOURCE_SHA);
+          assert.equal(metadata.workflowRunId, process.env.SOURCE_RUN_ID);
+          assert.equal(metadata.workflowRunAttempt, process.env.SOURCE_ATTEMPT);
           const suffixes = ['mac-arm64.dmg','mac-arm64.zip','mac-x64.dmg','mac-x64.zip','Setup.exe','Setup-x64.exe','Setup-arm64.exe','Setup-win7-x64.exe','x86_64.AppImage','arm64.AppImage'];
           for (const suffix of suffixes) assert(names.includes(`SelectionTranslator-${version}-${suffix}`), suffix);
           assert(!names.some(name => name.includes('__uninstaller')));
