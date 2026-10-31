@@ -5,17 +5,17 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--page
 .web-address-form { flex: 1 1 220px; min-width: 180px; }
 #web-address, .web-language-control select, .web-mode-control select { width: 100%; min-height: 36px; border: 1px solid var(--border-control); border-radius: 8px; background: var(--control-bg); color: var(--text-primary); outline: none; }
 #web-address { padding: 7px 10px; }
-.web-language-control, .web-mode-control { display: flex; flex: 0 1 auto; align-items: center; gap: 5px; color: var(--text-secondary); font-size: 12px; white-space: nowrap; }
-.web-language-control select, .web-mode-control select { min-width: 105px; padding: 6px 8px; font-size: 13px; }
+.web-language-control, .web-mode-control { display: flex; flex: 0 1 auto; align-items: center; gap: 5px; color: var(--text-secondary); font-size: calc(12px * var(--font-scale, 1)); white-space: nowrap; }
+.web-language-control select, .web-mode-control select { min-width: 105px; padding: 6px 8px; font-size: calc(13px * var(--font-scale, 1)); }
 .language-arrow { color: var(--text-muted); }
 #web-address:focus, select:focus { border-color: var(--button-bg); box-shadow: 0 0 0 3px var(--focus-ring); }
-.icon-button, .primary-button, .secondary-button { min-height: 36px; border: 1px solid var(--border-control); border-radius: 8px; padding: 7px 11px; background: var(--button-secondary-bg); }
-.icon-button { min-width: 36px; padding: 7px; font-size: 18px; }
-.primary-button { border-color: var(--button-bg); background: var(--accent-gradient); color: var(--button-text); font-weight: 650; }
+.icon-button, .primary-button, .secondary-button { min-height: 36px; border: 1px solid var(--border-control); border-radius: 8px; padding: 7px 11px; background: var(--button-secondary-bg); color: var(--accent-text); }
+.icon-button { min-width: 36px; padding: 7px; font-size: calc(18px * var(--font-scale, 1)); }
+.primary-button { border-color: var(--button-bg); background: var(--button-bg); color: var(--button-text); font-weight: 650; }
 .icon-button:hover:not(:disabled), .secondary-button:hover:not(:disabled) { background: var(--button-secondary-hover); }
 .primary-button:hover:not(:disabled) { background: var(--button-bg-hover); }
 button:disabled { cursor: not-allowed; opacity: 0.5; }
-.web-status { flex: 0 0 auto; min-height: 29px; padding: 6px 14px; border-bottom: 1px solid var(--border-default); background: var(--bg-secondary); color: var(--text-secondary); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.web-status { flex: 0 0 auto; min-height: 29px; padding: 6px 14px; border-bottom: 1px solid var(--border-default); background: var(--bg-secondary); color: var(--text-secondary); font-size: calc(12px * var(--font-scale, 1)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .web-status[data-state='error'] { color: var(--status-error); }
 .web-loading-progress { flex: 0 0 2px; width: 100%; height: 2px; min-height: 2px; background: var(--button-bg); transform-origin: left center; }
 .web-loading-progress:not([hidden]) { animation: web-loading-progress 1.3s var(--ease-standard) infinite; }
@@ -26,3 +26,12 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 @keyframes web-loading-progress { 0% { transform: scaleX(.08); opacity: .65; } 55% { transform: scaleX(.72); opacity: 1; } 100% { transform: scaleX(.96); opacity: .65; } }
 
 @media (prefers-reduced-motion: reduce) { .web-loading-progress:not([hidden]) { animation: none; transform: scaleX(.55); } }
+
+/* Reader chrome shares the restrained workspace surfaces. */
+.web-toolbar { gap: 10px; padding: 14px 18px; background: var(--page-bg); }
+.web-navigation-actions { gap: 2px; }
+.web-navigation-actions .icon-button { border-color: transparent; background: transparent; }
+#web-address { background: var(--bg-secondary); border-color: transparent; border-radius: 10px; padding-inline: 14px; }
+.web-language-control > span, .web-mode-control > span { color: var(--text-muted); font-size: calc(11px * var(--font-scale, 1)); }
+.web-status { background: var(--page-bg); color: var(--text-muted); font-size: calc(11px * var(--font-scale, 1)); padding-inline: 20px; border-bottom-color: var(--divider); }
+.primary-button { font-weight: 550; }

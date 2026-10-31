@@ -4,8 +4,8 @@ import test from 'node:test'
 
 const workflowPath = '.github/workflows/package.yml'
 const gitignorePath = '.gitignore'
-const chineseReadmePath = 'README.zh-CN.md'
-const englishReadmePath = 'README.md'
+const chineseReadmePath = 'docs/guide.zh-CN.md'
+const englishReadmePath = 'docs/guide.en.md'
 
 /**
  * 读取多平台打包工作流内容。

@@ -85,7 +85,7 @@ test('设置窗口不得使用会跨所有桌面的 nonactivating panel', () => 
     /setVisibleOnAllWorkspaces\(/u,
     '设置窗口既然不是 panel，就不需要依赖无法生效的跨桌面归一化调用'
   )
-  assert.match(popupCreateSource, /process\.platform\s*===\s*'darwin'\s*\?\s*\{\s*type:\s*'panel'\s*\}/u)
+  assert.match(popupCreateSource, /process\.platform\s*===\s*'darwin'\s*\?\s*\{\s*type:\s*'panel'\s*[,}]/u)
 })
 
 test('选区“译”按钮在 macOS 上必须是非激活 panel，点击不得激活应用', () => {
@@ -100,7 +100,7 @@ test('选区“译”按钮在 macOS 上必须是非激活 panel，点击不得�
   // 否则 Phase 2 删除设置窗口焦点挂起机制后，该回归会再次出现。
   assert.match(
     createSource,
-    /process\.platform\s*===\s*'darwin'\s*\?\s*\{\s*type:\s*'panel'\s*\}/u,
+    /process\.platform\s*===\s*'darwin'\s*\?\s*\{\s*type:\s*'panel'\s*[,}]/u,
     'macOS 选区“译”按钮必须使用 nonactivating panel'
   )
 })

@@ -8,7 +8,7 @@ import {
   tForTest
 } from './helpers/i18n.ts'
 
-const GROUP_IDS = ['general', 'ai', 'ocr', 'translation-services', 'advanced', 'logs', 'about'] as const
+const GROUP_IDS = ['general', 'vocabulary', 'ai', 'ocr', 'translation-services', 'advanced', 'logs', 'about'] as const
 
 /**
  * 获取指定元素的开始标签，便于校验设置页可访问性属性。
@@ -23,7 +23,7 @@ function getOpeningTag(html: string, id: string): string {
   return match[0]
 }
 
-test('设置页应展示七个可访问的左侧一级分组与稳定内容面板', () => {
+test('设置页应展示八个可访问的左侧一级分组与稳定内容面板', () => {
   const html = readFileSync('src/renderer/settings.html', 'utf8')
   assert.match(html, /class="settings-sidebar"/u)
   const tablist = html.match(/<nav class="settings-sidebar"[^>]*>/u)?.[0]
@@ -104,7 +104,7 @@ test('切换分组应保留 DOM、表单值、加载数据和每组滚动位置'
 test('设置页应使用左侧导航、独立滚动内容和窄宽自适应布局', () => {
   const css = readFileSync('src/renderer/src/settings.css', 'utf8')
   assert.match(css, /\.settings-layout\s*\{[\s\S]*display:\s*flex/u)
-  assert.match(css, /\.settings-sidebar\s*\{[\s\S]*width:\s*184px/u)
+  assert.match(css, /\.settings-rail\s*\{[^}]*width:\s*var\(--sidebar-width\)/u)
   assert.match(css, /\.settings-content\s*\{[\s\S]*flex:\s*1/u)
   assert.match(css, /\.settings-content\s*\{[\s\S]*min-width:\s*0/u)
   assert.match(css, /\.settings-content\s*\{[\s\S]*min-height:\s*0/u)
@@ -118,7 +118,7 @@ test('设置页菜单文字应使用主题语义色并保证选中项对比度',
   assert.match(css, /\.settings-tab\s*\{[^}]*color:\s*var\(--text-secondary\)/u)
   assert.match(
     css,
-    /\.settings-tab\[aria-selected='true'\]\s*\{[^}]*color:\s*var\(--button-text\)/u
+    /\.settings-tab\[aria-selected='true'\]\s*\{[^}]*color:\s*var\(--text-primary\)/u
   )
 })
 
@@ -127,6 +127,7 @@ test('设置页一级菜单应靠左对齐并在文字前展示对应图标', ()
   const css = readFileSync('src/renderer/src/settings.css', 'utf8')
   const labels = [
     'settings.tab.general',
+    'settings.tab.vocabulary',
     'settings.tab.ai',
     'settings.tab.ocr',
     'settings.tab.translationServices',
@@ -162,14 +163,16 @@ test('设置页数字输入框应与下拉框使用统一控件高度和主题�
   assert.match(css, /select,[\s\S]*input\[type=['"]number['"]\][\s\S]*padding:\s*7px\s+10px/u)
 })
 
-test('关于页项目卡片应在右下角对齐展示作者与邮箱', () => {
+test('关于页应精简署名并通过仓库链接与 Star 按钮提供入口', () => {
   const html = readFileSync('src/renderer/settings.html', 'utf8')
-  const aboutIndex = html.indexOf('id="settings-panel-about"')
-  const projectIndex = html.indexOf('data-i18n="settings.about.project"', aboutIndex)
-  const projectSection = html.slice(projectIndex)
-  assert.match(projectSection, /class="project-meta"/u)
-  assert.match(projectSection, new RegExp(`<dt data-i18n="settings\\.about\\.author">${tForTest('en-US', 'settings.about.author')}<\\/dt>\\s*<dd>zhenghq<\\/dd>`, 'u'))
-  assert.match(projectSection, new RegExp(`<dt data-i18n="settings\\.about\\.email">${tForTest('en-US', 'settings.about.email')}<\\/dt>\\s*<dd>734652567@qq\\.com<\\/dd>`, 'u'))
+  const about = html.slice(html.indexOf('id="settings-panel-about"'))
+  assert.match(about, /id="maintainer-profile"[^>]+href="https:\/\/github\.com\/Tadasuki"[^>]*>RinoNya<\/a>/u)
+  assert.match(about, /Rino8bit@gmail\.com/u)
+  assert.match(about, /settings\.about\.description/u)
+  assert.match(about, /id="original-author"[^>]+href="https:\/\/github\.com\/zhq734\/translation"[^>]*>zhenghq<\/a>/u)
+  assert.match(about, /class="btn github-star-button"/u)
+  assert.match(about, /id="repository-stars"/u)
+  assert.doesNotMatch(about, /settings\.about\.(?:project|repository|changes)|734652567@qq\.com/u)
 })
 
 test('设置操作反馈应使用脱离内容布局的主题气泡提示', () => {

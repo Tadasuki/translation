@@ -1,9 +1,12 @@
+import { isUiFontFamily, normalizeUiFontSize } from '../../shared/types'
 import type { Api, Settings, ThemeMode, ThemePreset } from '../../shared/types'
 
 const THEME_CACHE_KEY = 'selection-translator.theme'
-const DEFAULT_THEME: ThemePreset = 'sky'
+const DEFAULT_THEME: ThemePreset = 'platinum-black'
 const THEME_PRESETS: readonly ThemePreset[] = ['sakura', 'emerald', 'sky', 'navy', 'platinum-black']
 const THEME_MODES: readonly ThemeMode[] = ['system', 'light', 'dark']
+
+type AppearanceSettings = Pick<Settings, 'themePreset' | 'themeMode'> & Partial<Pick<Settings, 'uiFontFamily' | 'uiFontSize'>>
 
 type ThemeApi = Pick<Api, 'getSettings' | 'onSettingsChanged'>
 
@@ -39,13 +42,13 @@ export function resolveThemeMode(mode: ThemeMode): Exclude<ThemeMode, 'system'> 
  * @returns 合法的主题预设与模式，或 null。
  * @author zhenghq
  */
-function readCachedTheme(): Pick<Settings, 'themePreset' | 'themeMode'> | null {
+function readCachedTheme(): AppearanceSettings | null {
   try {
     const raw = window.localStorage.getItem(THEME_CACHE_KEY)
     if (!raw) return null
     const parsed = JSON.parse(raw) as Record<string, unknown>
     if (!isThemePreset(parsed.themePreset) || !isThemeMode(parsed.themeMode)) return null
-    return { themePreset: parsed.themePreset, themeMode: parsed.themeMode }
+    return { themePreset: parsed.themePreset, themeMode: parsed.themeMode, uiFontFamily: isUiFontFamily(parsed.uiFontFamily) ? parsed.uiFontFamily : 'default', uiFontSize: normalizeUiFontSize(parsed.uiFontSize) }
   } catch {
     return null
   }
@@ -56,7 +59,7 @@ function readCachedTheme(): Pick<Settings, 'themePreset' | 'themeMode'> | null {
  * @returns 无返回值。
  * @author zhenghq
  */
-function cacheTheme(settings: Pick<Settings, 'themePreset' | 'themeMode'>): void {
+function cacheTheme(settings: AppearanceSettings): void {
   try {
     window.localStorage.setItem(THEME_CACHE_KEY, JSON.stringify(settings))
   } catch {
@@ -69,13 +72,17 @@ function cacheTheme(settings: Pick<Settings, 'themePreset' | 'themeMode'>): void
  * @returns 无返回值。
  * @author zhenghq
  */
-export function applyTheme(settings: Pick<Settings, 'themePreset' | 'themeMode'>): void {
+export function applyTheme(settings: AppearanceSettings): void {
   const themePreset = isThemePreset(settings.themePreset) ? settings.themePreset : DEFAULT_THEME
   const themeMode = isThemeMode(settings.themeMode) ? settings.themeMode : 'system'
   const root = document.documentElement
   root.setAttribute('data-theme', themePreset)
   root.setAttribute('data-theme-mode', resolveThemeMode(themeMode))
-  cacheTheme({ themePreset, themeMode })
+  const uiFontFamily = isUiFontFamily(settings.uiFontFamily) ? settings.uiFontFamily : 'default'
+  const uiFontSize = normalizeUiFontSize(settings.uiFontSize)
+  root.setAttribute('data-font', uiFontFamily)
+  root.style.setProperty('--font-scale', String(uiFontSize / 14))
+  cacheTheme({ themePreset, themeMode, uiFontFamily, uiFontSize })
 }
 
 /** 启动 Renderer 主题运行时，负责缓存预应用、主进程同步和系统外观监听。
@@ -88,7 +95,7 @@ export function startThemeRuntime(api: ThemeApi): () => void {
   if (cached) applyTheme(cached)
 
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-  let currentTheme: Pick<Settings, 'themePreset' | 'themeMode'> = cached ?? {
+  let currentTheme: AppearanceSettings = cached ?? {
     themePreset: DEFAULT_THEME,
     themeMode: 'system'
   }
@@ -98,13 +105,13 @@ export function startThemeRuntime(api: ThemeApi): () => void {
   mediaQuery.addEventListener('change', handleSystemThemeChange)
 
   void api.getSettings().then((settings) => {
-    currentTheme = { themePreset: settings.themePreset, themeMode: settings.themeMode }
+    currentTheme = { themePreset: settings.themePreset, themeMode: settings.themeMode, uiFontFamily: settings.uiFontFamily, uiFontSize: settings.uiFontSize }
     applyTheme(settings)
   }).catch(() => {
     // 主进程设置暂不可用时保留缓存或共享样式默认值。
   })
   const unsubscribe = api.onSettingsChanged((settings) => {
-    currentTheme = { themePreset: settings.themePreset, themeMode: settings.themeMode }
+    currentTheme = { themePreset: settings.themePreset, themeMode: settings.themeMode, uiFontFamily: settings.uiFontFamily, uiFontSize: settings.uiFontSize }
     applyTheme(settings)
   })
   return () => {

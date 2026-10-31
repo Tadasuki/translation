@@ -1,9 +1,12 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import type { VocabularyEntry, VocabularyInput, VocabularyExportRequest, VocabularyExportResult } from '../shared/vocabulary'
+import type { LocalSpeechStatus, LocalSpeechChunk, LocalSpeechResult } from '../shared/localSpeech'
 import type { Locale } from '../shared/i18n/locale'
 import type {
   Api,
   LogEntry,
   TranslatePayload,
+  TranslationHistoryEntry,
   TranslateDeltaPayload,
   PopupAutoSizeRequest,
   ManualTranslateRequest,
@@ -788,6 +791,49 @@ const api: Api = {
    * @author zhenghq
    */
   installUpdate: () => ipcRenderer.send('updater:install'),
+  getTranslationHistory: (): Promise<TranslationHistoryEntry[]> => ipcRenderer.invoke('history:list'),
+  getLocalSpeechStatus: (): Promise<LocalSpeechStatus> => ipcRenderer.invoke('speech:local-status'),
+  installLocalSpeech: (): Promise<LocalSpeechStatus> => ipcRenderer.invoke('speech:local-install'),
+  cancelLocalSpeechInstall: (): void => ipcRenderer.send('speech:local-install-cancel'),
+  onLocalSpeechStatus(callback: (status: LocalSpeechStatus) => void) {
+    const listener = (_event: Electron.IpcRendererEvent, status: LocalSpeechStatus): void => callback(status)
+    ipcRenderer.on('speech:local-status', listener)
+    return () => ipcRenderer.removeListener('speech:local-status', listener)
+  },
+  startLocalSpeech: (text: string, language: string, requestId: string): Promise<LocalSpeechResult> => ipcRenderer.invoke('speech:local-start', requestId, text, language),
+  cancelLocalSpeech: (requestId: string): void => ipcRenderer.send('speech:local-cancel', requestId),
+  onLocalSpeechChunk(callback: (chunk: LocalSpeechChunk) => void) {
+    const listener = (_event: Electron.IpcRendererEvent, chunk: LocalSpeechChunk): void => callback(chunk)
+    ipcRenderer.on('speech:local-chunk', listener)
+    return () => ipcRenderer.removeListener('speech:local-chunk', listener)
+  },
+  getVocabulary: (): Promise<VocabularyEntry[]> => ipcRenderer.invoke('vocabulary:list'),
+  exportVocabulary: (request: VocabularyExportRequest): Promise<VocabularyExportResult> => ipcRenderer.invoke('vocabulary:export', request),
+  addVocabulary: (input: VocabularyInput): Promise<VocabularyEntry> => ipcRenderer.invoke('vocabulary:add', input),
+  removeVocabulary: (id: string): Promise<void> => ipcRenderer.invoke('vocabulary:remove', id),
+  reviewVocabulary: (id: string, remembered: boolean): Promise<VocabularyEntry> => ipcRenderer.invoke('vocabulary:review', id, remembered),
+  onVocabularyChanged(callback: () => void) {
+    const listener = (): void => callback()
+    ipcRenderer.on('vocabulary:changed', listener)
+    return () => ipcRenderer.removeListener('vocabulary:changed', listener)
+  },
+  openVocabulary: (): void => ipcRenderer.send('vocabulary:open'),
+  onOpenVocabulary(callback: () => void) {
+    const listener = (): void => callback()
+    ipcRenderer.on('vocabulary:open-panel', listener)
+    return () => ipcRenderer.removeListener('vocabulary:open-panel', listener)
+  },
+  clearTranslationHistory: (): Promise<void> => ipcRenderer.invoke('history:clear'),
+  onTranslationHistoryChanged(callback: () => void) {
+    const listener = (): void => callback()
+    ipcRenderer.on('history:changed', listener)
+    return () => ipcRenderer.removeListener('history:changed', listener)
+  },
+  getRepositoryStars: (): Promise<number | null> => ipcRenderer.invoke('repository:get-stars'),
+  openMaintainerProfile: (): Promise<void> => ipcRenderer.invoke('repository:open-maintainer'),
+  openContactEmail: (): Promise<void> => ipcRenderer.invoke('repository:open-email'),
+  openProjectRepository: (): Promise<void> => ipcRenderer.invoke('repository:open-project'),
+  openOriginalRepository: (): Promise<void> => ipcRenderer.invoke('repository:open-original'),
   /**
    * 打开 GitHub Release 页面。
    * @returns 页面打开完成后的 Promise。
@@ -814,4 +860,5 @@ const api: Api = {
   }
 }
 
+contextBridge.exposeInMainWorld('desktopPlatform', process.platform)
 contextBridge.exposeInMainWorld('api', api)

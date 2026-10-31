@@ -60,6 +60,7 @@ test('所有静态可翻译属性必须由 data-i18n-attr 映射或显式白名�
       for (const attribute of TRANSLATABLE_ATTRIBUTES) {
         const value = readAttributeValue(tag, attribute)
         if (value === null) continue
+        if (attribute === 'alt' && value === '' && readAttributeValue(tag, 'aria-hidden') === 'true') continue
         const allowKey = `${file}:${attribute}`
         const allowedValues = STATIC_ATTRIBUTE_ALLOWLIST[allowKey]
         if (allowedValues?.includes(value)) continue

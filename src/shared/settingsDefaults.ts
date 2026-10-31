@@ -1,5 +1,6 @@
 import type { AiProtocol, OcrEnginePreference, ProxyMode, Settings, SpeechProvider, TriggerMode, WebTranslationMode, WebTranslationScope } from './types'
-import { DEFAULT_AI_BASE_URL, isAiProtocol, isOcrEnginePreference, normalizeOcrScale } from './types'
+import { isLocalSpeechVoice } from './localSpeech'
+import { isUiFontFamily, normalizeUiFontSize, DEFAULT_AI_BASE_URL, isAiProtocol, isOcrEnginePreference, normalizeOcrScale } from './types'
 import { isTranslationProviderPreference } from './translationProviders'
 import { isWebImageOverlayPlacement } from './webPageTranslation'
 import { normalizeUiLocale } from './i18n/locale'
@@ -9,8 +10,10 @@ export const SETTINGS_SCHEMA_VERSION = 20
 export const DEFAULT_SETTINGS: Settings = {
   schemaVersion: SETTINGS_SCHEMA_VERSION,
   uiLocale: 'auto',
-  themePreset: 'sky',
+  themePreset: 'platinum-black',
   themeMode: 'system',
+  uiFontFamily: 'default',
+  uiFontSize: 14,
   targetLang: 'auto',
   sourceLang: 'auto',
   hotkey: 'Alt+T',
@@ -37,6 +40,8 @@ export const DEFAULT_SETTINGS: Settings = {
   aiApiKeyConfigured: false,
   preferredTranslationProvider: 'auto',
   speechProvider: 'system',
+  localSpeechVoice: 'serena',
+  localSpeechEnglishVoice: 'ryan',
   ocrEnginePreference: 'auto',
   ocrHotkey: 'Alt+O',
   ocrLang: 'auto',
@@ -104,7 +109,7 @@ function isProxyMode(value: unknown): value is ProxyMode {
  * @author zhenghq
  */
 function isSpeechProvider(value: unknown): value is SpeechProvider {
-  return value === 'system' || value === 'edge'
+  return value === 'system' || value === 'edge' || value === 'local'
 }
 
 /**
@@ -201,6 +206,8 @@ export function normalizeSettings(rawSettings: LegacySettings = {}): Settings {
     uiLocale: normalizeUiLocale(rawSettings.uiLocale),
     themePreset: isThemePreset(rawSettings.themePreset) ? rawSettings.themePreset : DEFAULT_SETTINGS.themePreset,
     themeMode: isThemeMode(rawSettings.themeMode) ? rawSettings.themeMode : DEFAULT_SETTINGS.themeMode,
+    uiFontFamily: isUiFontFamily(rawSettings.uiFontFamily) ? rawSettings.uiFontFamily : DEFAULT_SETTINGS.uiFontFamily,
+    uiFontSize: normalizeUiFontSize(rawSettings.uiFontSize),
     targetLang: schemaVersion < 2 ? 'auto' : String(merged.targetLang || 'auto'),
     sourceLang: String(merged.sourceLang || 'auto'),
     hotkey: String(merged.hotkey || ''),
@@ -240,6 +247,8 @@ export function normalizeSettings(rawSettings: LegacySettings = {}): Settings {
     speechProvider: isSpeechProvider(rawSettings.speechProvider)
       ? rawSettings.speechProvider
       : 'system',
+    localSpeechVoice: isLocalSpeechVoice(rawSettings.localSpeechVoice) ? rawSettings.localSpeechVoice : 'serena',
+    localSpeechEnglishVoice: isLocalSpeechVoice(rawSettings.localSpeechEnglishVoice) ? rawSettings.localSpeechEnglishVoice : 'ryan',
     ocrEnginePreference: isOcrEnginePreference(merged.ocrEnginePreference)
       ? merged.ocrEnginePreference
       : 'auto',

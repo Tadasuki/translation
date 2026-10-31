@@ -18,6 +18,10 @@
     var root = document.documentElement
     root.setAttribute('data-theme', parsed.themePreset)
     root.setAttribute('data-theme-mode', mode)
+    if (['default', 'system', 'serif', 'mono'].indexOf(parsed.uiFontFamily) >= 0) root.setAttribute('data-font', parsed.uiFontFamily)
+    if (typeof parsed.uiFontSize === 'number' && isFinite(parsed.uiFontSize)) {
+      root.style.setProperty('--font-scale', String(Math.max(12, Math.min(20, Math.round(parsed.uiFontSize))) / 14))
+    }
   } catch (_) {
     // 缓存不可用或内容损坏时保留共享样式默认值，正式设置仍会异步应用。
   }

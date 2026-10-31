@@ -1,16 +1,28 @@
+/* Latin faces use their installed PostScript names; CJK falls through to the Chinese family. */
+@font-face { font-family: 'RinoNya Latin Sans'; src: local('AnthropicSansText-Regular'); font-style: normal; font-weight: 400; font-display: swap; unicode-range: U+0000-024F, U+1E00-1EFF, U+2000-206F; }
+@font-face { font-family: 'RinoNya Latin Sans'; src: local('AnthropicSansText-Medium'); font-style: normal; font-weight: 500; font-display: swap; unicode-range: U+0000-024F, U+1E00-1EFF, U+2000-206F; }
+@font-face { font-family: 'RinoNya Latin Sans'; src: local('AnthropicSansText-Semibold'); font-style: normal; font-weight: 600; font-display: swap; unicode-range: U+0000-024F, U+1E00-1EFF, U+2000-206F; }
+@font-face { font-family: 'RinoNya Latin Sans'; src: local('AnthropicSansText-Bold'); font-style: normal; font-weight: 700; font-display: swap; unicode-range: U+0000-024F, U+1E00-1EFF, U+2000-206F; }
+@font-face { font-family: 'RinoNya Latin Serif'; src: local('AnthropicSerifDisplay-Regular'); font-style: normal; font-weight: 400; font-display: swap; unicode-range: U+0000-024F, U+1E00-1EFF, U+2000-206F; }
+@font-face { font-family: 'RinoNya Latin Serif'; src: local('AnthropicSerifDisplay-Medium'); font-style: normal; font-weight: 500; font-display: swap; unicode-range: U+0000-024F, U+1E00-1EFF, U+2000-206F; }
+@font-face { font-family: 'RinoNya Latin Serif'; src: local('AnthropicSerifDisplay-Semibold'); font-style: normal; font-weight: 600; font-display: swap; unicode-range: U+0000-024F, U+1E00-1EFF, U+2000-206F; }
+@font-face { font-family: 'RinoNya Latin Serif'; src: local('AnthropicSerifDisplay-Bold'); font-style: normal; font-weight: 700; font-display: swap; unicode-range: U+0000-024F, U+1E00-1EFF, U+2000-206F; }
+
 :root {
   color-scheme: light dark;
   /* 跨平台共享设计 Token：所有 Renderer 使用同一套视觉尺度。 */
-  --font-family-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --font-size-caption: 12px;
-  --font-size-body: 14px;
-  --font-size-label: 13px;
-  --font-size-title: 20px;
+  --font-family-sans: 'RinoNya Latin Sans', 'Hiragino Sans GB', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  --font-family-heading: 'RinoNya Latin Serif', 'Source Han Serif SC', 'Source Han Serif CN', serif;
+  --font-size-caption: calc(12px * var(--font-scale, 1));
+  --font-size-body: calc(14px * var(--font-scale, 1));
+  --font-size-label: calc(13px * var(--font-scale, 1));
+  --font-size-title: calc(20px * var(--font-scale, 1));
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
   --space-6: 24px;
+  --checkbox-mark: #ffffff;
   --control-height-compact: 28px;
   --control-height: 32px;
   --control-height-primary: 36px;
@@ -19,50 +31,45 @@
   --icon-size-md: 20px;
   --icon-size-lg: 24px;
   --radius-control: 8px;
-  --radius-panel: 12px;
-  --radius-overlay: 12px;
+  --radius-panel: 14px;
+  --radius-overlay: 16px;
   --radius-pill: 10px;
   --border-width: 1px;
-  --shadow-overlay: 0 12px 44px var(--popup-shadow);
+  --shadow-overlay: 0 8px 32px var(--popup-shadow);
   --z-titlebar: 100;
   --z-overlay: 1000;
   --duration-fast: 120ms;
   --duration-normal: 200ms;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --page-bg: #f5f5f7;
+  color-scheme: light;
+  --page-bg: #fcfcfb;
   --panel-bg: #ffffff;
   --panel-shadow: rgba(0, 0, 0, 0.04);
-  --bg-secondary: #f2f2f7;
+  --bg-secondary: #f1f1ee;
   --control-bg: #ffffff;
-  --control-disabled-bg: #ededf2;
-  --border-default: #e5e5ea;
-  --border-control: #d1d1d6;
-  --focus-ring: rgba(59, 130, 246, 0.16);
-  --button-secondary-bg: #f2f2f7;
-  --button-secondary-hover: #e5e5ea;
-  --popup-bg: rgba(255, 255, 255, 0.96);
-  --popup-border: rgba(0, 0, 0, 0.1);
-  --text-primary: #1c1c1e;
-  --text-secondary: #4b4b50;
-  --text-muted: #8e8e93;
-  --divider: rgba(0, 0, 0, 0.08);
-  --button-bg: #3b82f6;
-  --button-bg-hover: #2f6fd0;
-  --button-text: #ffffff;
-  --selection-button-bg: rgba(255, 255, 255, 0.98);
-  --selection-button-border: rgba(0, 0, 0, 0.12);
-  --selection-button-shadow: rgba(0, 0, 0, 0.24);
-  --ocr-overlay-bg: rgba(15, 23, 42, 0.18);
+  --control-disabled-bg: #eeeee9;
+  --border-default: #e8e8e3;
+  --border-control: #deded8;
+  --button-secondary-bg: #f4f4f1;
+  --button-secondary-hover: #eaeae5;
+  --popup-bg: rgba(253, 253, 251, 0.98);
+  --translation-popup-bg: rgba(255, 255, 255, 0.45);
+  --popup-backdrop-brightness: 1.35;
+  --floating-shadow: 0 5px 16px -3px var(--glass-shadow), 0 1px 4px var(--glass-shadow-tight);
+  --popup-border: rgba(36, 36, 30, 0.12);
+  --popup-shadow: rgba(20, 20, 16, 0.12);
+  --text-primary: #252523;
+  --text-secondary: #62625e;
+  --text-muted: #7a7a74;
+  --text-quiet: #6f6f69;
+  --divider: rgba(36, 36, 30, 0.08);
+  --selection-button-bg: rgba(252, 252, 250, 0.96);
+  --selection-button-border: rgba(36, 36, 30, 0.12);
+  --selection-button-shadow: rgba(36, 36, 30, 0.16);
+  --ocr-overlay-bg: rgba(0, 0, 0, 0.18);
   --ocr-selection-bg: rgba(255, 255, 255, 0.12);
   --ocr-selection-mask: rgba(0, 0, 0, 0.24);
-  --popup-shadow: rgba(0, 0, 0, 0.26);
-  --toast-bg: var(--popup-bg);
-  --toast-text: var(--text-primary);
-  --toast-border: var(--popup-border);
-  /* 覆盖层提示胶囊：截图动作提示与 OCR 框选提示共用的微信风格反色胶囊。
-     浅色主题深底白字、深色主题浅底深字——提示浮在任意桌面内容之上，
-     因此不跟随弹出层底色，而是取与主题相反的高对比面。 */
-  --hint-pill-bg: rgba(15, 23, 42, 0.9);
+  --hint-pill-bg: rgba(37, 37, 35, 0.94);
   --hint-pill-text: #ffffff;
   --hint-pill-icon-success: #34c759;
   --hint-pill-icon-warning: #ffd60a;
@@ -70,367 +77,330 @@
   --status-success: #248a3d;
   --status-error: #d70015;
   --status-warning: #9a6700;
-  /* 新组件只依赖语义别名，主题切换仍由现有基础变量驱动。 */
+  --sidebar-bg: rgba(239, 239, 235, 0.70);
+  --sidebar-solid: #efefeb;
+  --sidebar-selected: rgba(32, 32, 28, 0.07);
+  --sidebar-hover: rgba(32, 32, 28, 0.04);
+  --sidebar-edge: rgba(32, 32, 28, 0.07);
+  --material-highlight: rgba(255, 255, 255, 0.5);
+  /* 原生材质已经含雾面底色；这里只加轻薄中性遮罩，避免两层叠成实心。 */
+  --glass-bg: var(--translation-popup-bg);
+  --glass-sheen: transparent;
+  --glass-glow: transparent;
+  --glass-glow-warm: transparent;
+  --glass-border: rgba(0, 0, 0, 0.06);
+  --glass-edge: rgba(0, 0, 0, 0.13);
+  --glass-inset-highlight: rgba(255, 255, 255, 0.72);
+  --glass-shadow: rgba(0, 0, 0, 0.06);
+  --glass-shadow-tight: rgba(0, 0, 0, 0.025);
+  --glass-chip: rgba(255, 255, 255, 0.42);
+  --glass-chip-border: rgba(0, 0, 0, 0.06);
+  --glass-hover: rgba(0, 0, 0, 0.04);
+  --glass-pressed: rgba(0, 0, 0, 0.07);
+  --button-bg: #292927;
+  --accent-text: #292927;
+  --button-bg-hover: #44443f;
+  --button-text: #ffffff;
+  --focus-ring: rgba(40, 40, 35, 0.10);
+  --accent-start: var(--button-bg);
+  --accent-end: var(--button-bg-hover);
+  --accent-gradient: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+  --toast-bg: var(--popup-bg);
+  --toast-text: var(--text-primary);
+  --toast-border: var(--popup-border);
   --bg-primary: var(--page-bg);
   --bg-elevated: var(--panel-bg);
   --text-danger: var(--status-error);
   --overlay-bg: var(--popup-bg);
-  --capture-accent: var(--button-bg);
-  --focus-outline: var(--button-bg);
+  --capture-accent: var(--accent-text);
+  --focus-outline: var(--accent-text);
+  --theme-platinum-black-accent: #292927;
+  --theme-sakura-accent: #dca0b5;
+  --theme-emerald-accent: #91bea9;
+  --theme-sky-accent: #9ab8de;
+  --theme-navy-accent: #adb1d4;
 }
 
+/* Appearance alone controls surfaces, text, borders and native-material tints. */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --page-bg: #17171a;
-    --panel-bg: #232327;
+  :root:not([data-theme-mode='light']) {
+    color-scheme: dark;
+    --page-bg: #202020;
+    --panel-bg: #252525;
     --panel-shadow: rgba(0, 0, 0, 0.22);
-    --bg-secondary: #303035;
-    --control-bg: #29292e;
-    --control-disabled-bg: #202024;
-    --border-default: #3a3a40;
-    --border-control: #4a4a52;
-    --focus-ring: rgba(59, 130, 246, 0.28);
-    --button-secondary-bg: #303036;
-    --button-secondary-hover: #3b3b42;
-    --popup-bg: rgba(30, 30, 34, 0.97);
-    --popup-border: rgba(255, 255, 255, 0.08);
-    --text-primary: #e8e8ea;
-    --text-secondary: #c6c6cc;
-    --text-muted: #9a9aa2;
-    --divider: rgba(255, 255, 255, 0.08);
-    --selection-button-bg: rgba(45, 45, 50, 0.98);
-    --selection-button-border: rgba(255, 255, 255, 0.14);
-    --selection-button-shadow: rgba(0, 0, 0, 0.45);
+    --bg-secondary: #2c2c2b;
+    --control-bg: #292928;
+    --control-disabled-bg: #252524;
+    --border-default: #353533;
+    --border-control: #41413e;
+    --button-secondary-bg: #30302e;
+    --button-secondary-hover: #3b3b37;
+    --popup-bg: rgba(33, 33, 32, 0.98);
+    --translation-popup-bg: rgba(32, 32, 32, 0.28);
+    --popup-backdrop-brightness: 1;
+    --floating-shadow: 0 5px 16px -3px var(--glass-shadow), 0 1px 4px var(--glass-shadow-tight);
+    --popup-border: rgba(245, 245, 235, 0.12);
+    --popup-shadow: rgba(0, 0, 0, 0.28);
+    --text-primary: #eeeeec;
+    --text-secondary: #b9b9b3;
+    --text-muted: #999993;
+  --text-quiet: #b1b1ab;
+    --divider: rgba(245, 245, 235, 0.08);
+    --selection-button-bg: rgba(40, 40, 38, 0.96);
+    --selection-button-border: rgba(245, 245, 235, 0.14);
+    --selection-button-shadow: rgba(0, 0, 0, 0.4);
     --ocr-overlay-bg: rgba(0, 0, 0, 0.22);
     --ocr-selection-bg: rgba(255, 255, 255, 0.10);
     --ocr-selection-mask: rgba(0, 0, 0, 0.34);
-    --popup-shadow: rgba(0, 0, 0, 0.4);
-    --hint-pill-bg: rgba(244, 244, 247, 0.94);
-    --hint-pill-text: #17171a;
+    --hint-pill-bg: rgba(238, 238, 236, 0.96);
+    --hint-pill-text: #202020;
     --hint-pill-icon-success: #248a3d;
     --hint-pill-icon-warning: #9a6700;
     --hint-pill-icon-error: #d70015;
     --status-success: #34c759;
     --status-error: #ff6961;
     --status-warning: #ffd60a;
+    --sidebar-bg: rgba(30, 30, 29, 0.66);
+    --sidebar-solid: #1e1e1d;
+    --sidebar-selected: rgba(245, 245, 235, 0.08);
+    --sidebar-hover: rgba(245, 245, 235, 0.04);
+    --sidebar-edge: rgba(245, 245, 235, 0.06);
+    --material-highlight: rgba(255, 255, 255, 0.03);
+  /* 深色厚玻璃：保持低对比，同时用细白边勾出窗口轮廓。 */
+  --glass-bg: var(--translation-popup-bg);
+  --glass-sheen: transparent;
+  --glass-glow: transparent;
+  --glass-glow-warm: transparent;
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-edge: rgba(0, 0, 0, 0.35);
+  --glass-inset-highlight: rgba(255, 255, 255, 0.12);
+  --glass-shadow: rgba(0, 0, 0, 0.14);
+  --glass-shadow-tight: rgba(0, 0, 0, 0.06);
+  --glass-chip: rgba(255, 255, 255, 0.05);
+  --glass-chip-border: rgba(255, 255, 255, 0.08);
+  --glass-hover: rgba(255, 255, 255, 0.07);
+  --glass-pressed: rgba(255, 255, 255, 0.09);
+    --button-bg: #62625d;
+    --accent-text: #e5e5df;
+    --button-bg-hover: #74746d;
+    --button-text: #ffffff;
+    --focus-ring: rgba(235, 235, 225, 0.12);
   }
 }
 
-/* 用户显式选择的明暗模式必须压过系统外观，否则系统深色 + 应用浅色时胶囊会取错配色。
-   这两组的优先级高于上面的 :root 与 @media 块，但低于各主题预设块。 */
 :root[data-theme-mode='light'] {
-  --hint-pill-bg: rgba(15, 23, 42, 0.9);
+  color-scheme: light;
+  --page-bg: #fcfcfb;
+  --panel-bg: #ffffff;
+  --panel-shadow: rgba(0, 0, 0, 0.04);
+  --bg-secondary: #f1f1ee;
+  --control-bg: #ffffff;
+  --control-disabled-bg: #eeeee9;
+  --border-default: #e8e8e3;
+  --border-control: #deded8;
+  --button-secondary-bg: #f4f4f1;
+  --button-secondary-hover: #eaeae5;
+  --popup-bg: rgba(253, 253, 251, 0.98);
+  --translation-popup-bg: rgba(255, 255, 255, 0.45);
+  --popup-backdrop-brightness: 1.35;
+  --floating-shadow: 0 5px 16px -3px var(--glass-shadow), 0 1px 4px var(--glass-shadow-tight);
+  --popup-border: rgba(36, 36, 30, 0.12);
+  --popup-shadow: rgba(20, 20, 16, 0.12);
+  --text-primary: #252523;
+  --text-secondary: #62625e;
+  --text-muted: #7a7a74;
+  --text-quiet: #6f6f69;
+  --divider: rgba(36, 36, 30, 0.08);
+  --selection-button-bg: rgba(252, 252, 250, 0.96);
+  --selection-button-border: rgba(36, 36, 30, 0.12);
+  --selection-button-shadow: rgba(36, 36, 30, 0.16);
+  --ocr-overlay-bg: rgba(0, 0, 0, 0.18);
+  --ocr-selection-bg: rgba(255, 255, 255, 0.12);
+  --ocr-selection-mask: rgba(0, 0, 0, 0.24);
+  --hint-pill-bg: rgba(37, 37, 35, 0.94);
   --hint-pill-text: #ffffff;
   --hint-pill-icon-success: #34c759;
   --hint-pill-icon-warning: #ffd60a;
   --hint-pill-icon-error: #ff6961;
+  --status-success: #248a3d;
+  --status-error: #d70015;
+  --status-warning: #9a6700;
+  --sidebar-bg: rgba(239, 239, 235, 0.70);
+  --sidebar-solid: #efefeb;
+  --sidebar-selected: rgba(32, 32, 28, 0.07);
+  --sidebar-hover: rgba(32, 32, 28, 0.04);
+  --sidebar-edge: rgba(32, 32, 28, 0.07);
+  --material-highlight: rgba(255, 255, 255, 0.5);
+  /* 翻译弹窗的厚玻璃材质：浅色底、冷调虹彩、清晰细边。 */
+  --glass-bg: var(--translation-popup-bg);
+  --glass-sheen: transparent;
+  --glass-glow: transparent;
+  --glass-glow-warm: transparent;
+  --glass-border: rgba(0, 0, 0, 0.06);
+  --glass-edge: rgba(0, 0, 0, 0.13);
+  --glass-inset-highlight: rgba(255, 255, 255, 0.72);
+  --glass-shadow: rgba(0, 0, 0, 0.06);
+  --glass-shadow-tight: rgba(0, 0, 0, 0.025);
+  --glass-chip: rgba(255, 255, 255, 0.42);
+  --glass-chip-border: rgba(0, 0, 0, 0.06);
+  --glass-hover: rgba(0, 0, 0, 0.04);
+  --glass-pressed: rgba(0, 0, 0, 0.07);
 }
 
 :root[data-theme-mode='dark'] {
-  --hint-pill-bg: rgba(244, 244, 247, 0.94);
-  --hint-pill-text: #17171a;
+  color-scheme: dark;
+  --page-bg: #202020;
+  --panel-bg: #252525;
+  --panel-shadow: rgba(0, 0, 0, 0.22);
+  --bg-secondary: #2c2c2b;
+  --control-bg: #292928;
+  --control-disabled-bg: #252524;
+  --border-default: #353533;
+  --border-control: #41413e;
+  --button-secondary-bg: #30302e;
+  --button-secondary-hover: #3b3b37;
+  --popup-bg: rgba(33, 33, 32, 0.98);
+  --translation-popup-bg: rgba(32, 32, 32, 0.28);
+  --popup-backdrop-brightness: 1;
+  --floating-shadow: 0 5px 16px -3px var(--glass-shadow), 0 1px 4px var(--glass-shadow-tight);
+  --popup-border: rgba(245, 245, 235, 0.12);
+  --popup-shadow: rgba(0, 0, 0, 0.28);
+  --text-primary: #eeeeec;
+  --text-secondary: #b9b9b3;
+  --text-muted: #999993;
+  --text-quiet: #b1b1ab;
+  --divider: rgba(245, 245, 235, 0.08);
+  --selection-button-bg: rgba(40, 40, 38, 0.96);
+  --selection-button-border: rgba(245, 245, 235, 0.14);
+  --selection-button-shadow: rgba(0, 0, 0, 0.4);
+  --ocr-overlay-bg: rgba(0, 0, 0, 0.22);
+  --ocr-selection-bg: rgba(255, 255, 255, 0.10);
+  --ocr-selection-mask: rgba(0, 0, 0, 0.34);
+  --hint-pill-bg: rgba(238, 238, 236, 0.96);
+  --hint-pill-text: #202020;
   --hint-pill-icon-success: #248a3d;
   --hint-pill-icon-warning: #9a6700;
   --hint-pill-icon-error: #d70015;
-}
-
-/* 多彩主题：通过根节点属性覆盖共享语义变量；组件不得直接依赖主题色值。 */
-:root {
-  --accent-start: #38bdf8;
-  --accent-end: #6366f1;
-  --accent-gradient: linear-gradient(135deg, var(--accent-start), var(--accent-end));
-  --theme-sakura-gradient: linear-gradient(135deg, #f9a8d4, #fb7185);
-  --theme-emerald-gradient: linear-gradient(135deg, #10b981, #14b8a6);
-  --theme-sky-gradient: linear-gradient(135deg, #38bdf8, #6366f1);
-  --theme-navy-gradient: linear-gradient(135deg, #1e3a8a, #3730a3);
-  --theme-platinum-black-gradient: linear-gradient(135deg, #64748b, #cbd5e1);
-}
-
-:root[data-theme='sakura'][data-theme-mode='light'] {
-  color-scheme: light;
-  --page-bg: #fff7fb;
-  --panel-bg: #ffffff;
-  --panel-shadow: rgba(190, 24, 93, 0.08);
-  --bg-secondary: #fff0f6;
-  --control-bg: #fffafd;
-  --control-disabled-bg: #fce7f3;
-  --border-default: #f5c2d9;
-  --border-control: #e9a4c2;
-  --focus-ring: rgba(236, 72, 153, 0.22);
-  --button-secondary-bg: #fff0f6;
-  --button-secondary-hover: #fce7f3;
-  --popup-bg: rgba(255, 250, 253, 0.97);
-  --popup-border: rgba(190, 24, 93, 0.14);
-  --text-primary: #3f172e;
-  --text-secondary: #7a2856;
-  --text-muted: #ad6b8d;
-  --divider: rgba(190, 24, 93, 0.11);
-  --button-bg: #ec4899;
-  --button-bg-hover: #db2777;
+  --status-success: #34c759;
+  --status-error: #ff6961;
+  --status-warning: #ffd60a;
+  --sidebar-bg: rgba(30, 30, 29, 0.66);
+  --sidebar-solid: #1e1e1d;
+  --sidebar-selected: rgba(245, 245, 235, 0.08);
+  --sidebar-hover: rgba(245, 245, 235, 0.04);
+  --sidebar-edge: rgba(245, 245, 235, 0.06);
+  --material-highlight: rgba(255, 255, 255, 0.03);
+  /* 深色厚玻璃：保持低对比，同时用细白边勾出窗口轮廓。 */
+  --glass-bg: var(--translation-popup-bg);
+  --glass-sheen: transparent;
+  --glass-glow: transparent;
+  --glass-glow-warm: transparent;
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-edge: rgba(0, 0, 0, 0.35);
+  --glass-inset-highlight: rgba(255, 255, 255, 0.12);
+  --glass-shadow: rgba(0, 0, 0, 0.14);
+  --glass-shadow-tight: rgba(0, 0, 0, 0.06);
+  --glass-chip: rgba(255, 255, 255, 0.05);
+  --glass-chip-border: rgba(255, 255, 255, 0.08);
+  --glass-hover: rgba(255, 255, 255, 0.07);
+  --glass-pressed: rgba(255, 255, 255, 0.09);
+  --button-bg: #62625d;
+  --accent-text: #e5e5df;
+  --button-bg-hover: #74746d;
   --button-text: #ffffff;
-  --accent-start: #f9a8d4;
-  --accent-end: #fb7185;
-  --selection-button-bg: rgba(255, 250, 253, 0.98);
-  --selection-button-border: rgba(190, 24, 93, 0.16);
-  --selection-button-shadow: rgba(190, 24, 93, 0.24);
-  --popup-shadow: rgba(190, 24, 93, 0.22);
-  --hint-pill-bg: rgba(63, 23, 46, 0.92);
+  --focus-ring: rgba(235, 235, 225, 0.12);
+  --theme-platinum-black-accent: #62625d;
+  --theme-sakura-accent: #d397ae;
+  --theme-emerald-accent: #8ab6a2;
+  --theme-sky-accent: #95b1d4;
+  --theme-navy-accent: #a7abcc;
 }
 
-:root[data-theme='sakura'][data-theme-mode='dark'] {
-  color-scheme: dark;
-  --page-bg: #24131e;
-  --panel-bg: #35202d;
-  --panel-shadow: rgba(0, 0, 0, 0.3);
-  --bg-secondary: #48263a;
-  --control-bg: #3d2533;
-  --control-disabled-bg: #2d1d28;
-  --border-default: #63334d;
-  --border-control: #7c3f5e;
-  --focus-ring: rgba(244, 114, 182, 0.3);
-  --button-secondary-bg: #48263a;
-  --button-secondary-hover: #5b2d47;
-  --popup-bg: rgba(45, 26, 39, 0.98);
-  --popup-border: rgba(253, 164, 175, 0.18);
-  --text-primary: #fff1f5;
-  --text-secondary: #fbcfe8;
-  --text-muted: #d18aaa;
-  --divider: rgba(253, 164, 175, 0.13);
-  --button-bg: #f472b6;
-  --button-bg-hover: #ec4899;
-  --button-text: #3f172e;
-  --accent-start: #f472b6;
-  --accent-end: #fda4af;
-  --selection-button-bg: rgba(61, 37, 51, 0.98);
-  --selection-button-border: rgba(253, 164, 175, 0.2);
-  --selection-button-shadow: rgba(0, 0, 0, 0.48);
-  --popup-shadow: rgba(0, 0, 0, 0.5);
-  --hint-pill-bg: rgba(255, 241, 245, 0.95);
-  --hint-pill-text: #3f172e;
-}
-
-:root[data-theme='emerald'][data-theme-mode='light'] {
-  color-scheme: light;
-  --page-bg: #f2fffb;
-  --panel-bg: #ffffff;
-  --panel-shadow: rgba(5, 150, 105, 0.08);
-  --bg-secondary: #e8faf4;
-  --control-bg: #fbfffd;
-  --control-disabled-bg: #dff5ed;
-  --border-default: #b7e5d4;
-  --border-control: #8bd2ba;
-  --focus-ring: rgba(5, 150, 105, 0.2);
-  --button-secondary-bg: #e8faf4;
-  --button-secondary-hover: #d1fae5;
-  --popup-bg: rgba(250, 255, 253, 0.97);
-  --popup-border: rgba(5, 150, 105, 0.14);
-  --text-primary: #102a25;
-  --text-secondary: #225c4d;
-  --text-muted: #609487;
-  --divider: rgba(5, 150, 105, 0.11);
-  --button-bg: #059669;
-  --button-bg-hover: #047857;
-  --button-text: #ffffff;
-  --accent-start: #10b981;
-  --accent-end: #14b8a6;
-  --selection-button-bg: rgba(250, 255, 253, 0.98);
-  --selection-button-border: rgba(5, 150, 105, 0.16);
-  --selection-button-shadow: rgba(5, 150, 105, 0.24);
-  --popup-shadow: rgba(5, 150, 105, 0.2);
-  --hint-pill-bg: rgba(16, 43, 39, 0.92);
-}
-
-:root[data-theme='emerald'][data-theme-mode='dark'] {
-  color-scheme: dark;
-  --page-bg: #071c19;
-  --panel-bg: #102b27;
-  --panel-shadow: rgba(0, 0, 0, 0.3);
-  --bg-secondary: #173b34;
-  --control-bg: #15332e;
-  --control-disabled-bg: #0d2521;
-  --border-default: #28594e;
-  --border-control: #367466;
-  --focus-ring: rgba(52, 211, 153, 0.3);
-  --button-secondary-bg: #173b34;
-  --button-secondary-hover: #205047;
-  --popup-bg: rgba(16, 43, 39, 0.98);
-  --popup-border: rgba(110, 231, 183, 0.18);
-  --text-primary: #ecfdf5;
-  --text-secondary: #bbf7d0;
-  --text-muted: #8ac8b4;
-  --divider: rgba(110, 231, 183, 0.13);
-  --button-bg: #34d399;
-  --button-bg-hover: #10b981;
-  --button-text: #052e25;
-  --accent-start: #34d399;
-  --accent-end: #2dd4bf;
-  --selection-button-bg: rgba(21, 51, 46, 0.98);
-  --selection-button-border: rgba(110, 231, 183, 0.2);
-  --selection-button-shadow: rgba(0, 0, 0, 0.48);
-  --popup-shadow: rgba(0, 0, 0, 0.5);
-  --hint-pill-bg: rgba(236, 253, 245, 0.95);
-  --hint-pill-text: #102a25;
-}
-
-:root[data-theme='sky'][data-theme-mode='light'] {
-  color-scheme: light;
-  --accent-start: #38bdf8;
-  --accent-end: #6366f1;
-  --hint-pill-bg: rgba(15, 23, 42, 0.9);
-}
-
-:root[data-theme='sky'][data-theme-mode='dark'] {
-  color-scheme: dark;
-  --page-bg: #111b31;
-  --panel-bg: #1b2945;
-  --bg-secondary: #24385c;
-  --control-bg: #203250;
-  --control-disabled-bg: #17243c;
-  --border-default: #37547e;
-  --border-control: #4a6b9c;
-  --focus-ring: rgba(96, 165, 250, 0.3);
-  --button-secondary-bg: #24385c;
-  --button-secondary-hover: #304a76;
-  --popup-bg: rgba(24, 39, 65, 0.98);
-  --popup-border: rgba(125, 211, 252, 0.18);
-  --text-primary: #eff6ff;
-  --text-secondary: #dbeafe;
-  --text-muted: #93afd4;
-  --divider: rgba(125, 211, 252, 0.14);
-  --button-bg: #60a5fa;
-  --button-bg-hover: #3b82f6;
-  --button-text: #102a43;
-  --accent-start: #7dd3fc;
-  --accent-end: #818cf8;
-  --selection-button-bg: rgba(32, 50, 80, 0.98);
-  --selection-button-border: rgba(125, 211, 252, 0.2);
-  --selection-button-shadow: rgba(0, 0, 0, 0.48);
-  --popup-shadow: rgba(0, 0, 0, 0.5);
-  --hint-pill-bg: rgba(239, 246, 255, 0.95);
-  --hint-pill-text: #111b31;
-}
-
-:root[data-theme='navy'][data-theme-mode='light'] {
-  color-scheme: light;
-  --page-bg: #f3f6ff;
-  --panel-bg: #ffffff;
-  --bg-secondary: #e9efff;
-  --control-bg: #fbfcff;
-  --control-disabled-bg: #e1e8fb;
-  --border-default: #c4d0ee;
-  --border-control: #9eafd8;
-  --focus-ring: rgba(30, 58, 138, 0.2);
-  --button-secondary-bg: #e9efff;
-  --button-secondary-hover: #dbe5ff;
-  --popup-bg: rgba(250, 252, 255, 0.98);
-  --popup-border: rgba(30, 58, 138, 0.14);
-  --text-primary: #172554;
-  --text-secondary: #30457c;
-  --text-muted: #7182ad;
-  --divider: rgba(30, 58, 138, 0.11);
-  --button-bg: #1e3a8a;
-  --button-bg-hover: #172554;
-  --button-text: #ffffff;
-  --accent-start: #1e3a8a;
-  --accent-end: #3730a3;
-  --selection-button-bg: rgba(250, 252, 255, 0.98);
-  --selection-button-border: rgba(30, 58, 138, 0.16);
-  --selection-button-shadow: rgba(30, 58, 138, 0.24);
-  --hint-pill-bg: rgba(12, 20, 43, 0.92);
-}
-
-:root[data-theme='navy'][data-theme-mode='dark'] {
-  color-scheme: dark;
-  --page-bg: #0c142b;
-  --panel-bg: #162344;
-  --bg-secondary: #20345f;
-  --control-bg: #1c2d52;
-  --control-disabled-bg: #131f3b;
-  --border-default: #344e83;
-  --border-control: #4968a3;
-  --focus-ring: rgba(96, 165, 250, 0.32);
-  --button-secondary-bg: #20345f;
-  --button-secondary-hover: #2b4477;
-  --popup-bg: rgba(17, 30, 59, 0.98);
-  --popup-border: rgba(147, 197, 253, 0.2);
-  --text-primary: #eff6ff;
-  --text-secondary: #dbeafe;
-  --text-muted: #9bb1dc;
-  --divider: rgba(147, 197, 253, 0.14);
-  --button-bg: #60a5fa;
-  --button-bg-hover: #3b82f6;
-  --button-text: #0f1d3d;
-  --accent-start: #3b82f6;
-  --accent-end: #6366f1;
-  --selection-button-bg: rgba(28, 45, 82, 0.98);
-  --selection-button-border: rgba(147, 197, 253, 0.2);
-  --selection-button-shadow: rgba(0, 0, 0, 0.5);
-  --hint-pill-bg: rgba(239, 246, 255, 0.95);
-  --hint-pill-text: #0c142b;
-}
-
+/* Accent presets affect interactive emphasis only, never the workspace surfaces. */
 :root[data-theme='platinum-black'][data-theme-mode='light'] {
-  color-scheme: light;
-  --page-bg: #f4f5f7;
-  --panel-bg: #ffffff;
-  --bg-secondary: #e9ebef;
-  --control-bg: #fafbfc;
-  --control-disabled-bg: #e3e6eb;
-  --border-default: #c9ced7;
-  --border-control: #adb4c0;
-  --focus-ring: rgba(71, 85, 105, 0.2);
-  --button-secondary-bg: #e9ebef;
-  --button-secondary-hover: #dfe3e9;
-  --popup-bg: rgba(250, 251, 252, 0.98);
-  --popup-border: rgba(15, 23, 42, 0.15);
-  --text-primary: #111827;
-  --text-secondary: #374151;
-  --text-muted: #6b7280;
-  --divider: rgba(15, 23, 42, 0.11);
-  --button-bg: #475569;
-  --button-bg-hover: #334155;
+  --button-bg: #292927;
+  --accent-text: #292927;
+  --button-bg-hover: #44443f;
   --button-text: #ffffff;
-  --accent-start: #64748b;
-  --accent-end: #cbd5e1;
-  --selection-button-bg: rgba(250, 251, 252, 0.98);
-  --selection-button-border: rgba(15, 23, 42, 0.16);
-  --selection-button-shadow: rgba(15, 23, 42, 0.24);
-  --hint-pill-bg: rgba(17, 24, 39, 0.92);
+  --focus-ring: rgba(40, 40, 35, 0.10);
 }
 
 :root[data-theme='platinum-black'][data-theme-mode='dark'] {
-  color-scheme: dark;
-  --page-bg: #0f1115;
-  --panel-bg: #181b21;
-  --bg-secondary: #20242c;
-  --control-bg: #20242c;
-  --control-disabled-bg: #14171c;
-  --border-default: #343a46;
-  --border-control: #48515f;
-  --focus-ring: rgba(203, 213, 225, 0.3);
-  --button-secondary-bg: #20242c;
-  --button-secondary-hover: #2a303a;
-  --popup-bg: rgba(24, 27, 33, 0.98);
-  --popup-border: rgba(226, 232, 240, 0.18);
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  --divider: rgba(226, 232, 240, 0.14);
-  --button-bg: #cbd5e1;
-  --button-bg-hover: #e2e8f0;
-  --button-text: #111827;
-  --accent-start: #e2e8f0;
-  --accent-end: #475569;
-  --selection-button-bg: rgba(32, 36, 44, 0.98);
-  --selection-button-border: rgba(226, 232, 240, 0.2);
-  --selection-button-shadow: rgba(0, 0, 0, 0.55);
-  --hint-pill-bg: rgba(248, 250, 252, 0.95);
-  --hint-pill-text: #111827;
+  --button-bg: #62625d;
+  --accent-text: #e5e5df;
+  --button-bg-hover: #74746d;
+  --button-text: #ffffff;
+  --focus-ring: rgba(235, 235, 225, 0.12);
 }
 
-/* 主题强调控件统一使用渐变，状态色仍保持成功/错误语义。 */
-:root[data-theme] .primary-button,
-:root[data-theme] .btn.primary,
-:root[data-theme] .settings-tab[aria-selected='true'] {
-  background: var(--accent-gradient);
+:root[data-theme='sakura'][data-theme-mode='light'] {
+  --button-bg: #dca0b5;
+  --button-bg-hover: #d18da6;
+  --button-text: #ffffff;
+  --accent-text: #a04468;
+  --focus-ring: rgba(160, 68, 104, 0.14);
 }
+
+:root[data-theme='sakura'][data-theme-mode='dark'] {
+  --button-bg: #d397ae;
+  --button-bg-hover: #e1afc1;
+  --button-text: #ffffff;
+  --accent-text: #e4b1c4;
+  --focus-ring: rgba(211, 151, 174, 0.18);
+}
+
+:root[data-theme='emerald'][data-theme-mode='light'] {
+  --button-bg: #91bea9;
+  --button-bg-hover: #7eb098;
+  --button-text: #ffffff;
+  --accent-text: #327454;
+  --focus-ring: rgba(50, 116, 84, 0.14);
+}
+
+:root[data-theme='emerald'][data-theme-mode='dark'] {
+  --button-bg: #8ab6a2;
+  --button-bg-hover: #a2c8b7;
+  --button-text: #ffffff;
+  --accent-text: #a3d0ba;
+  --focus-ring: rgba(138, 182, 162, 0.18);
+}
+
+:root[data-theme='sky'][data-theme-mode='light'] {
+  --button-bg: #9ab8de;
+  --button-bg-hover: #86a8d2;
+  --button-text: #ffffff;
+  --accent-text: #426b9e;
+  --focus-ring: rgba(66, 107, 158, 0.14);
+}
+
+:root[data-theme='sky'][data-theme-mode='dark'] {
+  --button-bg: #95b1d4;
+  --button-bg-hover: #adc3df;
+  --button-text: #ffffff;
+  --accent-text: #b0c9e8;
+  --focus-ring: rgba(149, 177, 212, 0.18);
+}
+
+:root[data-theme='navy'][data-theme-mode='light'] {
+  --button-bg: #adb1d4;
+  --button-bg-hover: #9a9fc8;
+  --button-text: #ffffff;
+  --accent-text: #5a6197;
+  --focus-ring: rgba(90, 97, 151, 0.14);
+}
+
+:root[data-theme='navy'][data-theme-mode='dark'] {
+  --button-bg: #a7abcc;
+  --button-bg-hover: #bdc0da;
+  --button-text: #ffffff;
+  --accent-text: #c1c5e4;
+  --focus-ring: rgba(167, 171, 204, 0.18);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root { --sidebar-bg: var(--sidebar-solid); --translation-popup-bg: var(--panel-bg); --glass-bg: var(--panel-bg); --glass-sheen: transparent; --glass-glow: transparent; --glass-glow-warm: transparent; }
+}
+
+:root[data-font='system'] { --font-family-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; --font-family-heading: var(--font-family-sans); }
+:root[data-font='serif'] { --font-family-sans: 'RinoNya Latin Serif', 'Source Han Serif SC', 'Source Han Serif CN', 'Songti SC', 'SimSun', serif; --font-family-heading: var(--font-family-sans); }
+:root[data-font='mono'] { --font-family-sans: 'SFMono-Regular', Consolas, 'Hiragino Sans GB', 'Microsoft YaHei', monospace; --font-family-heading: var(--font-family-sans); }

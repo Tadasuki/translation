@@ -2,24 +2,30 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
-test('Windows 翻译弹窗应使用全透明原生背景并为圆角预留透明边距', () => {
+test('翻译弹窗应使用原生背景模糊和中性面板', () => {
   const popupSource = readFileSync('src/main/popup.ts', 'utf8')
   const styles = readFileSync('src/renderer/src/style.css', 'utf8')
 
+  // 当前确认的浮窗使用 popover 原生磨砂材质，避免旧测试要求退回 under-window。
+  assert.match(popupSource, /vibrancy:\s*'popover'/u)
+  assert.match(popupSource, /visualEffectState:\s*'active'/u)
+  assert.doesNotMatch(styles, /glass-noise\.png|radial-gradient/u)
   assert.match(popupSource, /transparent:\s*true[\s\S]*?backgroundColor:\s*'#00000000'/u)
-  assert.match(styles, /body\s*\{[^}]*padding:\s*8px;[^}]*overflow:\s*hidden;/su)
-  assert.match(styles, /#popup\s*\{[^}]*border-radius:\s*12px;[^}]*overflow:\s*hidden;/su)
-  assert.match(styles, /#popup\s*\{[^}]*clip-path:\s*inset\(0 round 12px\);/su)
+  assert.match(styles, /body\s*\{[^}]*padding:\s*20px;[^}]*overflow:\s*hidden;/su)
+  assert.match(styles, /#popup\s*\{[^}]*border-radius:\s*26px;[^}]*overflow:\s*hidden;/su)
+  assert.match(styles, /#popup\s*\{[^}]*background:\s*var\(--translation-popup-bg\)/su)
+  assert.match(styles, /#popup\s*\{[^}]*backdrop-filter:\s*blur\(28px\)/su)
+  assert.match(styles, /#popup\s*\{[^}]*box-shadow:[\s\S]*?var\(--floating-shadow\)/su)
 })
 
 /**
- * 校验透明页面宿主和弹窗内容使用一致圆角裁切，避免 Windows 合成出灰色方角。
+ * 宿主保留透明阴影边距，圆角只裁切实际面板。
  * @returns 无返回值。
  * @author zhenghq
  */
-test('翻译弹窗的透明宿主区域也必须裁成圆角，避免 Windows 在圆角外露出方形灰色裁切', () => {
+test('翻译弹窗宿主保持透明，不用第二层圆角裁掉柔光阴影', () => {
   const styles = readFileSync('src/renderer/src/style.css', 'utf8')
 
-  assert.match(styles, /html\s*,\s*body\s*\{[^}]*border-radius:\s*12px;[^}]*clip-path:\s*inset\(0 round 12px\);/su)
+  assert.match(styles, /html\s*,\s*body\s*\{[^}]*background:\s*transparent;[^}]*border-radius:\s*0;/su)
   assert.match(styles, /body\s*\{[^}]*isolation:\s*isolate;/su)
 })

@@ -15,6 +15,7 @@ import { handBackFrontmostThen } from './macForeground'
 import { createWindowsForegroundTracker } from './windowsForeground'
 import { ALL_WORKSPACES_VISIBILITY_OPTIONS } from './windowWorkspaceVisibility'
 import { logCandidateProbe } from '../shared/activateDiagnostics'
+import { attachPopupMaterial } from './popupMaterial'
 
 const WINDOW_EDGE_GAP = 8
 const CURSOR_GAP = 16
@@ -166,9 +167,15 @@ export function createPopup(options: CreatePopupOptions): BrowserWindow {
     alwaysOnTop: true,
     skipTaskbar: true,
     hasShadow: false,
+    roundedCorners: true,
     // macOS 上使用 nonactivating panel：show()/focus() 只让弹窗自身成为 key window，
     // 不激活整个应用，从而避免把同应用其它可见窗口一起带到最前。
-    ...(process.platform === 'darwin' ? { type: 'panel' } : {}),
+    // 网页 backdrop-filter 无法模糊其他应用；macOS 使用原生桌面背景材质。
+    ...(process.platform === 'darwin' ? {
+      type: 'panel',
+      vibrancy: 'popover',
+      visualEffectState: 'active'
+    } : {}),
     webPreferences: {
       preload: preloadPath,
       contextIsolation: true,
@@ -178,6 +185,7 @@ export function createPopup(options: CreatePopupOptions): BrowserWindow {
     }
   })
 
+  attachPopupMaterial(win)
   win.setAlwaysOnTop(true, 'floating')
   win.setVisibleOnAllWorkspaces(true, ALL_WORKSPACES_VISIBILITY_OPTIONS)
   win.webContents.setAudioMuted(false)
@@ -226,7 +234,7 @@ function handlePopupFocus(): void {
  * @author zhenghq
  */
 function handlePopupBlur(): void {
-  if (!win?.isVisible()) return
+  if (!win?.isVisible() || win.isMinimized()) return
   // 设置窗口抢焦点属于应用内部窗口切换，不能按“点击弹窗外部”关闭翻译弹窗。
   if (settingsOpenGuardActive) return
   const cursorInsideDragRegion = isPointInPopupDragRegion(

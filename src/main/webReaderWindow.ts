@@ -1399,9 +1399,14 @@ export class WebReaderManager {
       resizable: true,
       maximizable: true,
       fullscreenable: false,
-      backgroundColor: '#f5f7fa',
+      backgroundColor: '#fcfcfb',
+      ...(process.platform === 'darwin' ? {
+        titleBarStyle: 'hiddenInset' as const,
+        trafficLightPosition: { x: 16, y: 14 }
+      } : {}),
       webPreferences: { preload: this.options.preloadPath, contextIsolation: true, nodeIntegration: false, sandbox: true }
     })
+    if (process.platform === 'darwin') window.setWindowButtonVisibility(true)
     const view = new BrowserView({
       webPreferences: { session: this.getSession(), contextIsolation: true, nodeIntegration: false, sandbox: true }
     })

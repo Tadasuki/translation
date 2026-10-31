@@ -1,6 +1,6 @@
 {
   "name": "selection-translator",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "划词翻译 - macOS、Windows 与 Linux 桌面全局划词翻译工具（选区按钮与常驻弹窗）",
   "main": "out/main/index.js",
   "author": "",
@@ -30,9 +30,11 @@
   "devDependencies": {
     "@types/node": "^22.7.4",
     "@types/nodemailer": "^8.0.1",
+    "@types/sql.js": "1.4.11",
     "electron": "^33.2.0",
     "electron-builder": "^26.15.3",
     "electron-vite": "^2.3.0",
+    "sharp": "0.34.2",
     "typescript": "^5.6.3",
     "vite": "^5.4.10"
   },
@@ -67,7 +69,9 @@
       "node_modules/uiohook-napi/**/*",
       "build/usage-report-config.json",
       "build/tray*.png",
-      "node_modules/koffi/**/*"
+      "node_modules/koffi/**/*",
+      "node_modules/sql.js/**/*",
+      "node_modules/fflate/**/*"
     ],
     "asarUnpack": [
       "assets/ocr/**/*",
@@ -109,6 +113,14 @@
         {
           "from": "build/build-info.json",
           "to": "build-info.json"
+        },
+        {
+          "from": "helpers/local-tts",
+          "to": "local-tts",
+          "filter": [
+            "*.py",
+            "requirements.txt"
+          ]
         }
       ]
     },
@@ -182,8 +194,10 @@
   "dependencies": {
     "@gutenye/ocr-node": "^1.4.8",
     "electron-updater": "^6.8.9",
+    "fflate": "0.8.3",
     "koffi": "^3.2.1",
     "nodemailer": "^9.0.6",
+    "sql.js": "1.15.2",
     "tesseract.js": "^7.0.0",
     "uiohook-napi": "^1.5.5",
     "undici": "^5.29.0"

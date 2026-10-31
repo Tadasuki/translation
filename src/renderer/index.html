@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./brand-mark.svg" />
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; style-src 'self' 'unsafe-inline'; media-src 'self' blob:"
@@ -9,9 +10,11 @@
     <title data-i18n="app.name">Selection Translator</title>
     <script src="./localeBootstrap.js"></script>
     <script src="./themeBootstrap.js"></script>
+    <script src="./platformBootstrap.js"></script>
     <link rel="stylesheet" href="./src/theme.css" />
     <link rel="stylesheet" href="./src/base.css" />
     <link rel="stylesheet" href="./src/style.css" />
+    <link rel="stylesheet" href="./src/vocabulary.css" />
   </head>
   <body>
     <div id="popup">
@@ -37,6 +40,12 @@
                 <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
               </svg>
             </button>
+            <button id="open-history" class="header-action-button" type="button" data-i18n-attr="title:popup.history.title;aria-label:popup.history.title" title="Translation history" aria-label="Translation history" aria-pressed="false" aria-controls="history-view">
+              <svg class="header-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11a9 9 0 1 1 2.6 7.4M3 4v7h7M12 7v5l3 2"/></svg>
+            </button>
+            <button id="open-vocabulary" class="header-action-button" type="button" data-i18n-attr="title:vocabulary.title;aria-label:vocabulary.title" title="Vocabulary" aria-label="Vocabulary">
+              <svg class="header-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5c-3-2-6-2-9-1v15c3-1 6-1 9 1 3-2 6-2 9-1V4c-3-1-6-1-9 1ZM12 5v15"/></svg>
+            </button>
             <button id="open-settings" class="header-action-button" type="button" data-i18n-attr="title:popup.openSettings;aria-label:popup.openSettings" title="Open settings" aria-label="Open settings">
               <svg class="header-action-icon settings-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <circle cx="12" cy="12" r="3" />
@@ -57,6 +66,9 @@
           <section id="pronunciation-card" class="pronunciation-card" data-i18n-attr="aria-label:popup.pronunciationCard" aria-label="Word pronunciation" hidden>
             <div class="pronunciation-card-header">
               <span id="pronunciation-word" class="pronunciation-word"></span>
+              <button id="pronunciation-favorite" type="button" aria-pressed="false" data-i18n-attr="title:vocabulary.add;aria-label:vocabulary.add" title="Save word" aria-label="Save word">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+              </button>
               <button id="pronunciation-close" class="pronunciation-close" type="button" data-i18n-attr="aria-label:common.close;title:common.close" aria-label="Close" title="Close">×</button>
             </div>
             <div id="pronunciation-variants" class="pronunciation-variants" aria-live="polite"></div>
@@ -96,6 +108,17 @@
           </div>
           <div id="manual-result" class="manual-result" aria-live="polite"></div>
         </div>
+      </section>
+      <section id="history-view" class="history-view" hidden data-i18n-attr="aria-label:popup.history.title" aria-label="Translation history">
+        <div class="history-heading">
+          <button id="history-back" class="text-action" type="button" data-i18n="popup.history.back">Back</button>
+          <strong data-i18n="popup.history.title">Translation history</strong>
+          <span id="history-count" aria-live="polite"></span>
+          <button id="history-clear" class="text-action" type="button" data-i18n="popup.history.clear">Clear</button>
+        </div>
+        <p class="history-hint" data-i18n="popup.history.hint">Saved only on this device. Keeps the latest 200 translations.</p>
+        <input id="history-search" type="search" data-i18n-attr="placeholder:popup.history.search;aria-label:popup.history.search" placeholder="Search source or translation" aria-label="Search source or translation" autocomplete="off" />
+        <div id="history-list" class="history-list" role="list"></div>
       </section>
       <div class="footer popup-status-actions" data-i18n-attr="aria-label:popup.statusActions" aria-label="Translation status and actions">
         <button id="speak" class="header-action-button" type="button" data-i18n-attr="title:popup.speakUnavailable;aria-label:popup.speakUnavailable" title="No translation to read aloud" aria-label="No translation to read aloud" aria-pressed="false" disabled>

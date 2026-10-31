@@ -52,14 +52,14 @@ test('默认设置应包含关闭的 AI 通道和本地 Ollama 地址', () => {
   assert.equal(DEFAULT_SETTINGS.speechProvider, 'system')
 })
 
-test('默认设置应使用天空蓝和跟随系统主题', () => {
-  assert.equal(DEFAULT_SETTINGS.themePreset, 'sky')
+test('默认设置应使用中性灰和跟随系统主题', () => {
+  assert.equal(DEFAULT_SETTINGS.themePreset, 'platinum-black')
   assert.equal(DEFAULT_SETTINGS.themeMode, 'system')
 })
 
 test('主题设置应保留合法值并将非法值回退到默认值', () => {
   assert.equal(normalizeSettings({ themePreset: 'sakura', themeMode: 'dark' } as never).themePreset, 'sakura')
-  assert.equal(normalizeSettings({ themePreset: 'unknown', themeMode: 'invalid' } as never).themePreset, 'sky')
+  assert.equal(normalizeSettings({ themePreset: 'unknown', themeMode: 'invalid' } as never).themePreset, 'platinum-black')
   assert.equal(normalizeSettings({ themePreset: 'unknown', themeMode: 'invalid' } as never).themeMode, 'system')
 })
 
@@ -70,7 +70,7 @@ test('旧设置迁移时应补齐主题字段且保留业务设置', () => {
     targetLang: 'ZH',
     triggerMode: 'hotkey'
   } as never)
-  assert.equal(settings.themePreset, 'sky')
+  assert.equal(settings.themePreset, 'platinum-black')
   assert.equal(settings.themeMode, 'system')
   assert.equal(settings.sourceLang, 'EN')
   assert.equal(settings.targetLang, 'auto')

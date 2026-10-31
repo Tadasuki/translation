@@ -2,10 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./brand-mark.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title data-i18n="webReader.windowTitle">Web Translation</title>
     <script src="./localeBootstrap.js"></script>
     <script src="./themeBootstrap.js"></script>
+    <script src="./platformBootstrap.js"></script>
     <link rel="stylesheet" href="./src/theme.css" />
     <link rel="stylesheet" href="./src/base.css" />
     <link rel="stylesheet" href="./src/webReader.css" />
@@ -14,7 +16,7 @@
     <main class="web-reader-shell">
       <header id="web-reader-titlebar" class="window-titlebar" data-i18n-attr="aria-label:webReader.titlebar" aria-label="Web translation window title bar">
         <div class="window-titlebar-brand" data-i18n-attr="aria-label:webReader.brand" aria-label="Selection Translator web translation">
-          <span class="window-titlebar-mark" aria-hidden="true">译</span>
+          <img class="window-titlebar-mark" src="./brand-mark.svg" alt="" aria-hidden="true" />
           <span class="window-titlebar-title" data-i18n="webReader.windowTitle">Web Translation</span>
         </div>
         <div class="window-controls" data-i18n-attr="aria-label:common.windowControls" aria-label="Window controls">

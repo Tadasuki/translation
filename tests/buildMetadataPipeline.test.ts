@@ -242,8 +242,8 @@ test('Release 阶段应生成、校验并覆盖上传 build-info.json 资产', (
 })
 
 test('README 应说明构建元数据协议、迁移限制与发布运维步骤', () => {
-  const chinese = readFileSync('README.zh-CN.md', 'utf8')
-  const english = readFileSync('README.md', 'utf8')
+  const chinese = readFileSync('docs/guide.zh-CN.md', 'utf8')
+  const english = readFileSync('docs/guide.en.md', 'utf8')
 
   for (const document of [chinese, english]) {
     assert.match(document, /build-info\.json/u)

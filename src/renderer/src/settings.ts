@@ -1,4 +1,7 @@
+import { normalizeUiFontSize, type UiFontFamily } from '../../shared/types'
 import { LANGUAGES } from '../../shared/langs'
+import { startVocabularyPanel } from './vocabularyPanel'
+import { startLocalSpeechSettings } from './localSpeechSettings'
 import { isCopyShortcut } from '../../shared/copyShortcutBehavior'
 import { formatKeyboardAccelerator } from '../../shared/keyboardAccelerator'
 import { formatUpdateProgressTextForLocale } from '../../shared/updateProgressFormat'
@@ -41,6 +44,9 @@ function t(key: string, params?: Record<string, string | number>): string {
 
 const targetLang = document.getElementById('target-lang') as HTMLSelectElement
 const uiLocale = document.getElementById('ui-locale') as HTMLSelectElement
+const uiFontFamily = document.getElementById('ui-font-family') as HTMLSelectElement
+const uiFontSize = document.getElementById('ui-font-size') as HTMLInputElement
+const typographyReset = document.getElementById('typography-reset') as HTMLButtonElement
 const themeMode = document.getElementById('theme-mode') as HTMLSelectElement
 const themePresetCards = [...document.querySelectorAll<HTMLButtonElement>('[data-theme-preset]')]
 const sourceLang = document.getElementById('source-lang') as HTMLSelectElement
@@ -129,7 +135,10 @@ const updateInstallHint = document.getElementById('update-install-hint') as HTML
 const checkUpdateButton = document.getElementById('check-update') as HTMLButtonElement
 const updateActionButton = document.getElementById('update-action') as HTMLButtonElement
 const updateCancelButton = document.getElementById('update-cancel') as HTMLButtonElement
-const openReleaseButton = document.getElementById('open-release') as HTMLButtonElement
+const openRepositoryButton = document.getElementById('open-release') as HTMLButtonElement
+const repositoryStars = document.getElementById('repository-stars') as HTMLElement
+const originalAuthorLink = document.getElementById('original-author') as HTMLAnchorElement
+let repositoryStarsRequest: Promise<void> | null = null
 const removeQuarantineButton = document.getElementById('remove-quarantine') as HTMLButtonElement
 const schemaVersion = document.getElementById('schema-version') as HTMLElement
 const savedEl = document.getElementById('saved') as HTMLElement
@@ -140,11 +149,12 @@ const windowMinimizeButton = document.getElementById('window-minimize') as HTMLB
 const windowMaximizeButton = document.getElementById('window-maximize') as HTMLButtonElement
 const windowCloseButton = document.getElementById('window-close') as HTMLButtonElement
 
-type SettingsTabId = 'general' | 'ai' | 'ocr' | 'translation-services' | 'advanced' | 'logs' | 'about'
+type SettingsTabId = 'general' | 'ai' | 'ocr' | 'translation-services' | 'advanced' | 'logs' | 'about' | 'vocabulary'
 type SettingsTabHistoryMode = 'none' | 'replace' | 'push'
 
 const SETTINGS_TAB_IDS: SettingsTabId[] = [
   'general',
+  'vocabulary',
   'ai',
   'ocr',
   'translation-services',
@@ -277,6 +287,17 @@ function activateSettingsTab(
     panel.hidden = panel.dataset.tabPanel !== tabId
   }
 
+  const label = activeButton?.querySelector<HTMLElement>('[data-i18n]')
+  if (label?.dataset.i18n) {
+    for (const id of ['settings-page-title', 'settings-breadcrumb']) {
+      const heading = document.getElementById(id)
+      if (!heading) continue
+      heading.dataset.i18n = label.dataset.i18n
+      heading.textContent = t(label.dataset.i18n)
+    }
+  }
+
+  if (tabId === 'about') void refreshRepositoryStars()
   storeSettingsTab(tabId)
   syncSettingsTabToHistory(tabId, historyMode)
   const nextPanel = settingsTabPanels.find((panel) => panel.dataset.tabPanel === tabId)
@@ -468,6 +489,7 @@ function updateProxyFields(mode: string): void {
  * @author zhenghq
  */
 function updateSpeechProviderHint(provider: SpeechProvider): void {
+  if (provider === 'local') { speechProviderHint.textContent = t('localSpeech.providerHint'); return }
   speechProviderHint.textContent = t(
     provider === 'edge' ? 'settings.speech.hint.edge' : 'settings.speech.hint.system'
   )
@@ -484,6 +506,8 @@ function renderSettings(settings: Settings): void {
   uiLocale.value = settings.uiLocale
   uiLocale.dataset.currentLocale = settings.uiLocale
   themeMode.value = settings.themeMode
+  uiFontFamily.value = settings.uiFontFamily
+  uiFontSize.value = String(settings.uiFontSize)
   for (const card of themePresetCards) {
     card.setAttribute('aria-pressed', String(card.dataset.themePreset === settings.themePreset))
   }
@@ -846,17 +870,24 @@ async function removeMacOSQuarantine(): Promise<void> {
   }
 }
 
-/**
- * 在系统默认浏览器中打开项目 GitHub Release 页面。
- * @returns 页面打开完成后的 Promise。
- * @author zhenghq
- */
-async function openApplicationRelease(): Promise<void> {
+/** 按需刷新公开 Star 数；失败时保留占位或最近一次有效数量。 */
+function refreshRepositoryStars(): Promise<void> {
+  if (repositoryStarsRequest) return repositoryStarsRequest
+  repositoryStarsRequest = window.api.getRepositoryStars().then((stars) => {
+    if (typeof stars === 'number' && Number.isSafeInteger(stars) && stars >= 0) {
+      repositoryStars.textContent = stars.toLocaleString(localeRuntime.locale)
+    }
+  }).catch(() => undefined).finally(() => { repositoryStarsRequest = null })
+  return repositoryStarsRequest
+}
+
+/** 仓库目标由主进程固定，页面不能指定任意外部地址。 */
+async function openRepository(original = false): Promise<void> {
   try {
-    await window.api.openUpdatePage()
-  } catch (error) {
-    updateStatus.textContent = t('settings.update.openReleaseFailed', { message: (error as Error).message || t('common.unknownError') })
-    updateStatus.className = 'status update-status offline'
+    if (original) await window.api.openOriginalRepository()
+    else await window.api.openProjectRepository()
+  } catch {
+    flash(t('settings.about.openFailed'), 'error')
   }
 }
 
@@ -1770,8 +1801,40 @@ function requestStopService(): void {
 
 void initializeWindowTitlebar()
 initializeSettingsTabs()
+startVocabularyPanel(window.api, t)
+startLocalSpeechSettings(window.api, t)
+window.api.onOpenVocabulary(() => activateSettingsTab('vocabulary', false, 'push'))
+
+// Preserve an explicit sidebar choice; otherwise compact it only in narrow windows.
+const sidebarToggle = document.getElementById('sidebar-toggle') as HTMLButtonElement
+const compactSidebarQuery = window.matchMedia('(max-width: 720px)')
+const SIDEBAR_STORAGE_KEY = 'selection-translator.settings.sidebar-collapsed'
+try {
+  const saved = window.localStorage.getItem(SIDEBAR_STORAGE_KEY)
+  if (saved === 'true' || saved === 'false') document.body.dataset.sidebarCollapsed = saved
+} catch { /* Local preferences are optional when storage is unavailable. */ }
+function syncSidebarToggle(): void {
+  const saved = document.body.dataset.sidebarCollapsed
+  const collapsed = saved ? saved === 'true' : compactSidebarQuery.matches
+  sidebarToggle.setAttribute('aria-expanded', String(!collapsed))
+}
+sidebarToggle.addEventListener('click', () => {
+  const collapsed = sidebarToggle.getAttribute('aria-expanded') === 'true'
+  document.body.dataset.sidebarCollapsed = String(collapsed)
+  syncSidebarToggle()
+  try { window.localStorage.setItem(SIDEBAR_STORAGE_KEY, String(collapsed)) } catch { /* Optional preference. */ }
+})
+compactSidebarQuery.addEventListener('change', syncSidebarToggle)
+syncSidebarToggle()
 
 themeMode.addEventListener('change', saveThemeMode)
+uiFontFamily.addEventListener('change', () => void save({ uiFontFamily: uiFontFamily.value as UiFontFamily }))
+uiFontSize.addEventListener('change', () => {
+  const size = normalizeUiFontSize(uiFontSize.valueAsNumber)
+  uiFontSize.value = String(size)
+  void save({ uiFontSize: size })
+})
+typographyReset.addEventListener('click', () => void save({ uiFontFamily: 'default', uiFontSize: 14 }))
 uiLocale.addEventListener('change', () => void saveUiLocale())
 window.api.onSettingsChanged((settings) => {
   uiLocale.value = settings.uiLocale
@@ -1861,7 +1924,20 @@ stopServiceButton.addEventListener('click', requestStopService)
 checkUpdateButton.addEventListener('click', () => void checkApplicationUpdate())
 updateActionButton.addEventListener('click', () => void runUpdateAction())
 updateCancelButton.addEventListener('click', () => void cancelUpdateDownload())
-openReleaseButton.addEventListener('click', () => void openApplicationRelease())
+openRepositoryButton.addEventListener('click', () => void openRepository())
+originalAuthorLink.addEventListener('click', (event) => {
+  event.preventDefault()
+  void openRepository(true)
+})
+document.getElementById('maintainer-profile')?.addEventListener('click', (event) => {
+  event.preventDefault()
+  void window.api.openMaintainerProfile().catch(() => flash(t('settings.about.openFailed'), 'error'))
+})
+document.querySelector<HTMLAnchorElement>('a[href="mailto:Rino8bit@gmail.com"]')?.addEventListener('click', (event) => {
+  event.preventDefault()
+  void window.api.openContactEmail().catch(() => flash(t('settings.about.openFailed'), 'error'))
+})
+
 removeQuarantineButton.addEventListener('click', () => void removeMacOSQuarantine())
 window.api.onSettingsChanged((settings) => {
   renderSettings(settings)

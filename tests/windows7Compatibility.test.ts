@@ -332,8 +332,8 @@ test('CI 与一键安装脚本必须提供 Win7 x64 资产', () => {
 })
 
 test('中英文 README 必须说明 Win7 限制', () => {
-  const chinese = read('README.zh-CN.md')
-  const english = read('README.md')
+  const chinese = read('docs/guide.zh-CN.md')
+  const english = read('docs/guide.en.md')
   assert.match(chinese, /Windows 7 SP1 x64/u)
   assert.match(chinese, /Tesseract\.js/u)
   assert.match(chinese, /WebAssembly/u)

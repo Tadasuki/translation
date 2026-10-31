@@ -60,7 +60,7 @@ test('打开设置请求必须先开启失焦保护，失败时立即解除', ()
   const openSettingsIndex = indexSource.indexOf("ipcMain.on('settings:open'")
   assert.ok(openSettingsIndex >= 0, '必须注册 settings:open IPC')
 
-  const handlerSource = extractFunction(indexSource, 'function openSettingsFromPopup()')
+  const handlerSource = extractFunction(indexSource, 'function openSettingsFromPopup(')
   assert.match(
     handlerSource,
     /beginPopupSettingsOpenGuard\(\)/u,
@@ -107,7 +107,7 @@ test('设置窗口生命周期必须正确开关弹窗失焦保护', () => {
 
 test('弹窗内显式打开设置页必须豁免划词抑制并强制置前', () => {
   const handlerSource = stripComments(
-    extractFunction(indexSource, 'function openSettingsFromPopup()')
+    extractFunction(indexSource, 'function openSettingsFromPopup(')
   )
 
   // 弹窗内点击设置入口是显式用户操作。hidePopupForInternalWindowSwitch() 会续期
@@ -211,7 +211,7 @@ test('从翻译弹窗打开设置时必须只隐藏弹窗自身', () => {
   )
 
   const openSettingsSource = stripComments(
-    extractFunction(indexSource, 'function openSettingsFromPopup()')
+    extractFunction(indexSource, 'function openSettingsFromPopup(')
   )
   assert.match(
     openSettingsSource,
@@ -229,7 +229,7 @@ test('从翻译弹窗打开设置时必须只隐藏弹窗自身', () => {
 
 test('固定弹窗时从弹窗内打开设置页或阅读器不得关闭弹窗', () => {
   const openSettingsSource = stripComments(
-    extractFunction(indexSource, 'function openSettingsFromPopup()')
+    extractFunction(indexSource, 'function openSettingsFromPopup(')
   )
   const openWebReaderSource = stripComments(
     extractFunction(indexSource, 'function openWebReaderFromPopup(')
@@ -366,7 +366,7 @@ test('弹窗自身命中必须优先于已打开设置页或阅读器的内部�
 
 test('连续第二次打开设置页或阅读器时，打开动作完成后仍必须维持内部窗口保护', () => {
   const openSettingsSource = stripComments(
-    extractFunction(indexSource, 'function openSettingsFromPopup()')
+    extractFunction(indexSource, 'function openSettingsFromPopup(')
   )
   const openWebReaderSource = stripComments(
     extractFunction(indexSource, 'function openWebReaderFromPopup(')

@@ -55,7 +55,7 @@ test('截图工具条应提供文字识别、翻译、复制图片、保存到�
  * @author zhenghq
  */
 test('普通划词“译”按钮行为应保持不变', () => {
-  assert.match(selectionHtml, /<button[^>]+id="translate"[^>]*>译<\/button>/u)
+  assert.match(selectionHtml, /<button[^>]+id="translate"[^>]*>[\s\S]*class="selection-language-icon"/u)
   assert.match(selectionRenderer, /window\.api\.translateSelection\(\)/u)
   // 普通划词模式下不显示截图动作工具条
   assert.match(selectionRenderer, /if \(!ocrMode \|\| !currentRect\) return null/u)

@@ -1,4 +1,5 @@
 import type { SpeechStartResult } from './speech'
+import type { SpeechProvider } from '../../shared/types'
 
 /** 单词 TTS 兜底可使用的在线或系统语音控制器。 */
 export interface PronunciationFallbackController {
@@ -11,7 +12,8 @@ export interface PronunciationFallbackController {
 /** 单词 TTS 兜底依赖。 */
 export interface PronunciationSpeechFallbackOptions {
   /** 当前语音服务偏好。 */
-  speechProvider: 'system' | 'edge' | undefined
+  speechProvider: SpeechProvider | undefined
+  local?: PronunciationFallbackController
   /** 当前单词播放会话的取消信号。 */
   signal?: AbortSignal
   /** Edge 在线语音控制器。 */
@@ -22,7 +24,7 @@ export interface PronunciationSpeechFallbackOptions {
 
 /** 单词 TTS 兜底结果。 */
 export type PronunciationSpeechFallbackResult =
-  | { status: 'started'; provider: 'edge' | 'system' }
+  | { status: 'started'; provider: SpeechProvider }
   | { status: 'failed' }
 
 /**
@@ -39,6 +41,12 @@ export async function startPronunciationSpeechFallback(
   const normalizedText = text.trim()
   if (!normalizedText) return { status: 'failed' }
   if (options.signal?.aborted) return { status: 'failed' }
+  if (options.speechProvider === 'local') {
+    try {
+      const result = await options.local?.start(normalizedText, 'en-US')
+      return result?.ok && !options.signal?.aborted ? { status: 'started', provider: 'local' } : { status: 'failed' }
+    } catch { return { status: 'failed' } }
+  }
   if (options.speechProvider === 'edge') {
     try {
       const edgeResult = await options.edge.start(normalizedText, 'en-US')

@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./brand-mark.svg" />
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'"
@@ -14,7 +15,9 @@
     <link rel="stylesheet" href="./src/selection.css" />
   </head>
   <body>
-    <button id="translate" data-i18n-attr="title:selection.translateSelected;aria-label:selection.translateSelected" title="Translate selected text" aria-label="Translate selected text">译</button>
+    <button id="translate" data-i18n-attr="title:selection.translateSelected;aria-label:selection.translateSelected" title="Translate selected text" aria-label="Translate selected text">
+      <svg class="selection-language-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h10M8 3v3M5 6c.8 4 3.4 7 7.5 9M11 6c-1.1 4-3.8 7.2-7.6 9M13 21l4-10 4 10M14.6 17h4.8" /></svg>
+    </button>
     <main id="ocr-overlay" class="ocr-overlay" data-i18n-attr="aria-label:selection.ocrCapture" aria-label="OCR screenshot capture" hidden>
       <canvas id="ocr-snapshot" class="ocr-snapshot" aria-hidden="true" hidden></canvas>
       <canvas id="ocr-annotation-canvas" class="ocr-annotation-canvas" aria-hidden="true"></canvas>

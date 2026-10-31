@@ -191,3 +191,27 @@ hr,
     transition-duration: 1ms !important;
   }
 }
+
+/* Quiet chrome and consistent pointer feedback across desktop windows. */
+.window-titlebar-mark { background: var(--text-primary); color: var(--page-bg); }
+button { transition: background-color var(--duration-fast) ease, color var(--duration-fast) ease; }
+button:active:not(:disabled) { transform: scale(0.98); }
+.window-control-button:active:not(:disabled) { transform: none; }
+::selection { background: var(--focus-ring); color: var(--text-primary); }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { border-radius: 6px; background: var(--border-control); }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* macOS 使用系统交通灯；其他平台保留自绘窗口按钮。 */
+:root[data-platform='darwin'] .window-controls { display: none; }
+:root[data-platform='darwin'] .window-titlebar-brand { padding-left: 94px; }
+
+/* 浅色勾号不再由浏览器根据强调色亮度自动切换成黑色。 */
+input[type='checkbox'] { appearance: none; display: inline-grid; place-content: center; width: 16px; height: 16px; flex: 0 0 16px; margin: 0; border: 1px solid var(--border-control); border-radius: 4px; background: var(--control-bg); vertical-align: middle; cursor: pointer; }
+input[type='checkbox']::after { content: ''; width: 4px; height: 8px; border: solid var(--checkbox-mark); border-width: 0 2px 2px 0; transform: translateY(-1px) rotate(45deg); opacity: 0; }
+input[type='checkbox']:checked { border-color: var(--button-bg); background: var(--button-bg); }
+input[type='checkbox']:checked::after { opacity: 1; }
+input[type='checkbox']:indeterminate::after { width: 8px; height: 2px; border: 0; background: var(--checkbox-mark); transform: none; opacity: 1; }
+@media (forced-colors: active) { input[type='checkbox'] { appearance: auto; } input[type='checkbox']::after { display: none; } }
+
+img.window-titlebar-mark { display: block; object-fit: contain; background: transparent; }

@@ -1,3 +1,6 @@
+import { startPopupHistory } from './popupHistory'
+import { startVocabularyFavorite } from './vocabularyFavorite'
+import { createLocalSpeechPlayback } from './localSpeechPlayback'
 import { LANGUAGES, langLabel } from '../../shared/langs'
 import {
   isTranslationProviderAvailable,
@@ -128,6 +131,7 @@ const closeBtn = document.getElementById('close') as HTMLButtonElement
 
 let lastTranslation = ''
 let lastOriginal = ''
+let vocabularyFavorite: ReturnType<typeof startVocabularyFavorite> | undefined
 let lastOcrText = ''
 let selectionStatus = ''
 let selectionSourceLangCode: string | null = null
@@ -256,6 +260,9 @@ const edgeSpeechController: EdgePlaybackController = createEdgePlaybackControlle
   onSpeakingChange: () => syncSpeechButton(),
   onComplete: () => flashStatus(t('popup.speechCompleted'))
 })
+const localSpeechController = createLocalSpeechPlayback(window.api, {
+  t: key => t(key), onSpeakingChange: () => { syncSpeechButton(); syncSourceSpeechButton() }
+})
 
 /**
  * 释放单词词典音频对象与临时 Blob URL。
@@ -325,6 +332,7 @@ const pronunciationPlayback = createPronunciationPlaybackCoordinator({
       releaseWordAudio()
       systemSpeechController.stop()
       edgeSpeechController.stop()
+      localSpeechController.stop()
       renderPronunciationCard()
     }
     if (target === 'source') {
@@ -345,7 +353,7 @@ const pronunciationPlayback = createPronunciationPlaybackCoordinator({
  * @author zhenghq
  */
 function isSpeechPlaying(): boolean {
-  return systemSpeechController.isSpeaking() || edgeSpeechController.isSpeaking()
+  return systemSpeechController.isSpeaking() || edgeSpeechController.isSpeaking() || localSpeechController.isSpeaking()
 }
 
 /**
@@ -485,7 +493,9 @@ function syncSpeechButton(): void {
     ? t('popup.speechStop')
     : disabled
       ? t('popup.speechUnavailable')
-      : currentSettings?.speechProvider === 'edge'
+      : currentSettings?.speechProvider === 'local'
+        ? t('localSpeech.readHint')
+        : currentSettings?.speechProvider === 'edge'
         ? t('popup.speechEdgeHint')
         : systemSpeechController.canSpeak(getCurrentSpeechLanguage())
         ? t('popup.speechRead')
@@ -540,6 +550,7 @@ function stopTextPlayback(): void {
   speechOperationId += 1
   systemSpeechController.stop()
   edgeSpeechController.stop()
+  localSpeechController.stop()
 }
 
 /**
@@ -577,6 +588,7 @@ function canUseSourcePronunciation(): boolean {
  * @author zhenghq
  */
 function renderPronunciationCard(): void {
+  vocabularyFavorite?.render()
   const sourceSlot = sourcePronunciationCardSlot
   const targetSlot = pronunciationCard.context === 'translation'
     ? translationPronunciationCardEl
@@ -1006,6 +1018,13 @@ async function startTextPlayback(
 ): Promise<void> {
   const operationId = ++speechOperationId
   const resolvedLanguage = resolveSpeechLanguage(text, language)
+  if (currentSettings?.speechProvider === 'local') {
+    const result = await localSpeechController.start(text, resolvedLanguage)
+    if (!lease.isCurrent()) return
+    if (!result.ok && result.error !== t('localSpeech.error.cancelled')) flashStatus(result.error ?? t('localSpeech.error.unavailable'), 8000)
+    finishPronunciationPlayback(target, lease)
+    return
+  }
   if (currentSettings?.speechProvider === 'edge') {
     const result = await edgeSpeechController.start(text, resolvedLanguage)
     if (!lease.isCurrent()) return
@@ -1105,6 +1124,7 @@ async function toggleWordPlayback(variantId?: string): Promise<void> {
   const started = await startPronunciationSpeechFallback(word, {
     speechProvider: currentSettings?.speechProvider,
     edge: edgeSpeechController,
+    local: localSpeechController,
     system: systemSpeechController
   })
   if (!lease.isCurrent()) return
@@ -1192,6 +1212,7 @@ async function fallbackWordSpeech(
   const started = await startPronunciationSpeechFallback(word, {
     speechProvider: currentSettings?.speechProvider,
     edge: edgeSpeechController,
+    local: localSpeechController,
     system: systemSpeechController
   })
   if (!lease.isCurrent()) return
@@ -1716,6 +1737,7 @@ function measureTextLineWidth(text: string, font: string): number {
  */
 function measureAutoSize(): { width: number; height: number } {
   const popupEl = document.getElementById('popup') as HTMLElement
+  if (popupEl.classList.contains('history-open')) return { width: Math.max(520, innerWidth), height: Math.max(480, innerHeight) }
   // 流式展示期间最终译文尚未写回 lastTranslation/manualState.translation，
   // 宽度测量必须纳入当前已揭示的译文前缀，否则窗口宽度只会等全部返回后才变化。
   const selectionRevealText = selectionReveal.fullText.slice(0, selectionReveal.visibleLength)
@@ -1730,8 +1752,8 @@ function measureAutoSize(): { width: number; height: number } {
     measureTextLineWidth(text, sourceFont),
     measureTextLineWidth(text, resultFont)
   ), 0)
-  // 水平方向额外预留左右内边距、透明宿主边距与边框。
-  const horizontalChrome = 60
+  // 水平方向额外预留 #popup 左右内边距、透明宿主边距与双层描边。
+  const horizontalChrome = 86
   // 文本过长时不再继续撑宽窗口，避免出现难以阅读的超长行。
   const comfortMaxWidth = Math.min(POPUP_AUTO_SIZE_LIMITS.maxWidth, 640)
   const desiredWidth = Math.max(
@@ -1977,6 +1999,8 @@ async function changeTranslationProvider(): Promise<void> {
 function syncSettings(settings: Settings): void {
   const previousSettings = currentSettings
   const speechProviderChanged = currentSettings?.speechProvider !== settings.speechProvider
+    || currentSettings?.localSpeechVoice !== settings.localSpeechVoice
+    || currentSettings?.localSpeechEnglishVoice !== settings.localSpeechEnglishVoice
   if (speechProviderChanged) stopSpeech()
   currentSettings = settings
   sourceLangEl.value = settings.sourceLang
@@ -2331,6 +2355,23 @@ window.api.onTranslateDelta(handleTranslateDelta)
 window.api.onPinnedChanged(renderPinnedState)
 window.api.onPopupHidden(handlePopupHidden)
 window.api.onSettingsChanged(syncSettings)
+startPopupHistory(window.api, {
+  t: (key) => t(key),
+  locale: () => localeRuntime.locale,
+  onToggle: (open) => {
+    if (open) { stopSpeech(); stopPronunciationPlayback(); closePronunciation() }
+    requestAutoResize()
+  }
+})
+document.getElementById('open-vocabulary')?.addEventListener('click', () => window.api.openVocabulary())
+vocabularyFavorite = startVocabularyFavorite(window.api, {
+  current: () => pronunciationCard.status === 'hidden' || pronunciationCard.status === 'loading' ? null : ({
+    word: pronunciationCard.word, definitions: pronunciationCard.definitions,
+    phonetics: pronunciationCard.variants.map(variant => variant.ipa).filter(Boolean),
+    context: pronunciationCard.context === 'source' ? lastOriginal : lastTranslation
+  }),
+  t: key => t(key), message: text => flashStatus(text)
+})
 localeRuntime.onLocaleChanged(handleLocaleChanged)
 if ('speechSynthesis' in window) {
   window.speechSynthesis.addEventListener('voiceschanged', syncSpeechButton)

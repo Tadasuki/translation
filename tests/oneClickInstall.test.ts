@@ -494,8 +494,8 @@ test('README 应默认使用英文并提供独立的简体中文文档', () => {
   assert.doesNotMatch(chineseReadme, /^## English Documentation$/mu)
 })
 
-test('中英文 README 都应提供一键安装命令和固定版本示例', () => {
-  const readmes = [readRepositoryFile('README.md'), readRepositoryFile('README.zh-CN.md')]
+test('中英文安装指南都应保留一键安装命令和固定版本示例', () => {
+  const readmes = [readRepositoryFile('docs/guide.en.md'), readRepositoryFile('docs/guide.zh-CN.md')]
 
   for (const readme of readmes) {
     assert.match(
@@ -512,9 +512,9 @@ test('中英文 README 都应提供一键安装命令和固定版本示例', () 
   }
 })
 
-test('README 应明确 Windows Terminal 必须使用 PowerShell，并提供 CMD 启动命令', () => {
-  const englishReadme = readRepositoryFile('README.md')
-  const chineseReadme = readRepositoryFile('README.zh-CN.md')
+test('安装指南应明确 Windows Terminal 必须使用 PowerShell，并提供 CMD 启动命令', () => {
+  const englishReadme = readRepositoryFile('docs/guide.en.md')
+  const chineseReadme = readRepositoryFile('docs/guide.zh-CN.md')
 
   assert.match(chineseReadme, /Windows Terminal[\s\S]*?PowerShell[\s\S]*?CMD、Git Bash 或 WSL/u)
   assert.match(chineseReadme, /powershell\.exe -NoProfile -ExecutionPolicy Bypass -Command/u)

@@ -52,22 +52,18 @@ test('应用打包应使用翻译主题的自定义图标', () => {
  * @returns 无返回值。
  * @author zhenghq
  */
-test('应用与托盘图标应显示和选区按钮一致的“译”字', () => {
+test('应用、托盘与选区按钮应使用无字体依赖的文 A 翻译图案', () => {
   const selectionHtml = readFileSync('src/renderer/selection.html', 'utf8')
-  const iconSvg = readFileSync('build/icon.svg', 'utf8')
-  const trayColorSvg = readFileSync('build/tray-color.svg', 'utf8')
-  const trayTemplateSvg = readFileSync('build/tray-template.svg', 'utf8')
-
-  assert.match(selectionHtml, /<button[^>]+id="translate"[^>]*>译<\/button>/u)
-  for (const source of [iconSvg, trayColorSvg, trayTemplateSvg]) {
-    assert.match(source, /<title>译<\/title>/u)
-    assert.match(source, /id="rounded-yi-glyph"[^>]+data-font-family="Wawati SC"/u)
-    assert.match(source, /stroke-linecap="round"[^>]+stroke-linejoin="round"/u)
-    assert.doesNotMatch(source, /font-family="Heiti SC"/u)
+  assert.match(selectionHtml, /id="translate"[\s\S]*class="selection-language-icon"/u)
+  assert.doesNotMatch(selectionHtml, />译<\/button>/u)
+  for (const file of ['build/icon.svg', 'build/tray-color.svg', 'build/tray-template.svg']) {
+    const source = readFileSync(file, 'utf8')
+    assert.match(source, /<path/u)
+    assert.match(source, /stroke-linecap="round"/u)
+    assert.doesNotMatch(source, /<text|data-font-family/u)
   }
-  assert.match(iconSvg, /transform="translate\(162\.5 720\) scale\(2\.82\)"/u)
-  assert.match(trayColorSvg, /transform="translate\(5\.5 21\.6\) scale\(0\.084\)"/u)
-  assert.match(trayTemplateSvg, /transform="translate\(3\.2 25\.9\) scale\(0\.113\)"/u)
+  const settings = readFileSync('src/renderer/settings.html', 'utf8')
+  assert.match(settings, /src="\.\/brand-mark\.svg"/u)
 })
 
 /**

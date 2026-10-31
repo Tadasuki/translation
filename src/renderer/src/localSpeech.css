@@ -1,0 +1,6 @@
+#local-speech-controls { display: grid; gap: 12px; margin-top: 14px; padding: 18px; border: 1px solid var(--border-default); border-radius: 14px; background: var(--control-bg); }
+#local-speech-controls[hidden] { display: none; }
+#local-speech-controls .row { margin: 0; }
+.local-speech-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.local-speech-note, #local-speech-status { font-size: var(--font-size-caption); line-height: 1.7; color: var(--text-secondary); }
+#local-speech-controls progress { width: 100%; accent-color: var(--accent-text); }

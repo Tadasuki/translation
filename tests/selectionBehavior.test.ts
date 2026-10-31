@@ -1383,26 +1383,8 @@ test('划词监听启动失败应记录可诊断日志，避免手势失效时�
  * @returns 无返回值。
  * @author zhenghq
  */
-test('翻译弹窗的操作图标应统一支持光标悬停动画', () => {
-  const popupStyles = readFileSync('src/renderer/src/style.css', 'utf8')
-
-  for (const selector of [
-    '#manual-mode:hover .manual-icon',
-    '#open-web-reader:hover .web-reader-icon',
-    '#open-settings:hover .settings-icon',
-    '#speak:hover:not([disabled]) .speak-icon',
-    '#copy:hover .copy-icon',
-    '#pin:hover .pin-icon',
-    '#close:hover:not(:active)'
-  ]) {
-    assert.ok(
-      popupStyles.includes(selector),
-      `缺少悬停动画选择器：${selector}`
-    )
-  }
-
-  assert.match(
-    popupStyles,
-    /\.header-action-icon\s*\{[^}]*transition:\s*transform[^;]*;/su
-  )
+test('翻译弹窗的高频工具应保留按压反馈并避免装饰性悬停位移', () => {
+  const css = readFileSync('src/renderer/src/style.css', 'utf8')
+  assert.match(css, /\.header-action-button:active,[\s\S]*transform:\s*scale\(0\.97\)/u)
+  assert.doesNotMatch(css, /#(?:open-settings|open-web-reader|close):hover[^}]*transform:\s*rotate/u)
 })

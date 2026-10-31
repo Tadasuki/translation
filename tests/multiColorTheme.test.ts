@@ -25,7 +25,7 @@ test('所有 Renderer 入口都应初始化并监听主题设置', () => {
   }
 })
 
-test('主题样式应提供五套主题的浅深模式和强调渐变', () => {
+test('主题样式应提供五种强调色及浅深外观', () => {
   const css = readFileSync('src/renderer/src/theme.css', 'utf8')
   for (const theme of ['sakura', 'emerald', 'sky', 'navy', 'platinum-black']) {
     assert.match(css, new RegExp(`data-theme=['"]${theme}['"]`, 'u'))
@@ -42,7 +42,7 @@ test('气泡提示应跟随浅深与多彩主题使用语义颜色', () => {
   assert.match(css, /--toast-border:\s*var\(--popup-border\)/u)
 })
 
-test('覆盖层提示胶囊应为反色胶囊并在五套主题与浅深模式下都有定义', () => {
+test('覆盖层提示胶囊应只跟随明暗外观并保持反色对比', () => {
   const css = readFileSync('src/renderer/src/theme.css', 'utf8')
   const toastCss = readFileSync('src/renderer/src/toast.css', 'utf8')
   const selectionCss = readFileSync('src/renderer/src/selection.css', 'utf8')
@@ -51,10 +51,15 @@ test('覆盖层提示胶囊应为反色胶囊并在五套主题与浅深模式�
   assert.match(css, /--hint-pill-text:\s*#/u)
   // 显式明暗模式必须压过系统外观：浅色主题深底白字，深色主题浅底深字
   assert.match(css, /:root\[data-theme-mode='light'\]\s*\{[^}]*--hint-pill-text:\s*#ffffff/u)
-  assert.match(css, /:root\[data-theme-mode='dark'\]\s*\{[^}]*--hint-pill-text:\s*#17171a/u)
-  // 五套主题各自微调胶囊底色，保证多主题下都不是同一种黑
-  for (const theme of ['sakura', 'emerald', 'sky', 'navy', 'platinum-black']) {
-    assert.match(css, new RegExp(`data-theme=['"]${theme}['"][^}]*--hint-pill-bg:`, 'u'), `${theme} 缺少提示胶囊底色`)
+  assert.match(css, /:root\[data-theme-mode='dark'\]\s*\{[^}]*--hint-pill-text:\s*#202020/u)
+  // 配色只改变交互强调，预设中不得再次定义背景、文字或侧栏材质。
+  const rules = [...css.matchAll(/:root\[data-theme='([^']+)'\]\[data-theme-mode='(light|dark)'\]\s*\{([^}]+)\}/gu)]
+  assert.equal(rules.length, 10)
+  const allowed = new Set(['--button-bg', '--button-bg-hover', '--button-text', '--accent-text', '--focus-ring'])
+  for (const [, preset, mode, declarations] of rules) {
+    for (const [, property] of declarations!.matchAll(/(--[\w-]+)\s*:/gu)) {
+      assert.ok(allowed.has(property!), `${preset}/${mode} 不应覆盖 ${property}`)
+    }
   }
   // 状态图标必须走各自的 Token，不得退回共享状态色
   assert.match(toastCss, /\[data-state='warning'\][^}]*--hint-pill-icon-warning/u)

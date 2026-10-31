@@ -9,6 +9,8 @@ import type {
 } from './webPageTranslation'
 
 import type { UiLocale } from './i18n/locale'
+import type { VocabularyEntry, VocabularyInput, VocabularyExportRequest, VocabularyExportResult } from './vocabulary'
+import type { LocalSpeechStatus, LocalSpeechChunk, LocalSpeechResult, LocalSpeechVoice } from './localSpeech'
 
 export type { ExtractedWebTextUnit, WebImageOverlayPlacement, WebTranslationMode, WebTranslationScope } from './webPageTranslation'
 
@@ -23,6 +25,15 @@ export type ThemePreset = 'sakura' | 'emerald' | 'sky' | 'navy' | 'platinum-blac
 
 /** 应用主题的明暗模式。 */
 export type ThemeMode = 'system' | 'light' | 'dark'
+
+export const UI_FONT_FAMILIES = ['default', 'system', 'serif', 'mono'] as const
+export type UiFontFamily = typeof UI_FONT_FAMILIES[number]
+export function isUiFontFamily(value: unknown): value is UiFontFamily {
+  return typeof value === 'string' && (UI_FONT_FAMILIES as readonly string[]).includes(value)
+}
+export function normalizeUiFontSize(value: unknown): number {
+  return typeof value === 'number' && Number.isFinite(value) ? Math.max(12, Math.min(20, Math.round(value))) : 14
+}
 
 /** 手动翻译允许提交的最大字符数。 */
 export const MANUAL_TRANSLATION_MAX_CHARS = 5000
@@ -41,7 +52,7 @@ export interface ManualTranslateRequest {
 export type ProxyMode = 'system' | 'direct' | 'custom'
 
 /** 译文朗读使用的语音引擎。 */
-export type SpeechProvider = 'system' | 'edge'
+export type SpeechProvider = 'system' | 'edge' | 'local'
 
 /** 可供用户指定为首选项的翻译 API。 */
 export type TranslationProviderId =
@@ -224,6 +235,18 @@ export interface TranslatePayload {
   /** OCR 识别失败时的细分错误分类，仅 OCR 翻译结果携带。 */
   ocrCode?: OcrErrorCode
   error?: string
+}
+
+/** 仅存储在本机的完整翻译结果。 */
+export interface TranslationHistoryEntry {
+  id: string
+  createdAt: number
+  original: string
+  translation: string
+  sourceLang: string
+  targetLang: string
+  provider?: string
+  origin: TranslationOrigin
 }
 
 /** 流式翻译增量事件负载，用于划词与手动翻译的渐进展示。 */
@@ -705,6 +728,8 @@ export interface Settings {
   themePreset: ThemePreset
   /** 应用主题明暗模式。 */
   themeMode: ThemeMode
+  uiFontFamily: UiFontFamily
+  uiFontSize: number
   targetLang: string
   sourceLang: string
   hotkey: string
@@ -753,6 +778,8 @@ export interface Settings {
   preferredTranslationProvider: TranslationProviderPreference
   /** 译文朗读使用的语音引擎，默认使用系统内置语音。 */
   speechProvider: SpeechProvider
+  localSpeechVoice: LocalSpeechVoice
+  localSpeechEnglishVoice: LocalSpeechVoice
   /** OCR 引擎偏好，auto 表示按平台自动调度。 */
   ocrEnginePreference: OcrEnginePreference
   /** 截图翻译快捷键。 */
@@ -1094,6 +1121,21 @@ export interface CaptureDiagnosticsSummary {
 }
 
 export interface Api {
+  getLocalSpeechStatus(): Promise<LocalSpeechStatus>
+  installLocalSpeech(): Promise<LocalSpeechStatus>
+  cancelLocalSpeechInstall(): void
+  onLocalSpeechStatus(cb: (status: LocalSpeechStatus) => void): () => void
+  startLocalSpeech(text: string, language: string, requestId: string): Promise<LocalSpeechResult>
+  cancelLocalSpeech(requestId: string): void
+  onLocalSpeechChunk(cb: (chunk: LocalSpeechChunk) => void): () => void
+  getVocabulary(): Promise<VocabularyEntry[]>
+  exportVocabulary(request: VocabularyExportRequest): Promise<VocabularyExportResult>
+  addVocabulary(input: VocabularyInput): Promise<VocabularyEntry>
+  removeVocabulary(id: string): Promise<void>
+  reviewVocabulary(id: string, remembered: boolean): Promise<VocabularyEntry>
+  onVocabularyChanged(cb: () => void): () => void
+  openVocabulary(): void
+  onOpenVocabulary(cb: () => void): () => void
   /** 最小化当前受信任窗口。 */
   windowMinimize(): void
   /** 切换当前受信任窗口的最大化或恢复状态。 */
@@ -1340,6 +1382,19 @@ export interface Api {
   checkAi(): Promise<AiCheckStatus>
   getDockerCommand(port: number): Promise<string>
   openDeployDoc(): void
+
+  /** 读取本项目公开 Star 数；暂不可用时返回 null。 */
+  getTranslationHistory(): Promise<TranslationHistoryEntry[]>
+  clearTranslationHistory(): Promise<void>
+  onTranslationHistoryChanged(callback: () => void): () => void
+  getRepositoryStars(): Promise<number | null>
+  /** 在系统浏览器中打开固定的项目仓库。 */
+  openProjectRepository(): Promise<void>
+  /** 在系统浏览器中打开固定的原作者仓库。 */
+  openOriginalRepository(): Promise<void>
+  /** 打开维护者 GitHub 主页或联系邮箱。 */
+  openMaintainerProfile(): Promise<void>
+  openContactEmail(): Promise<void>
 
   // 自动更新
   /**

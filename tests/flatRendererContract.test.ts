@@ -23,7 +23,7 @@ test('翻译弹窗应按标题、语言、内容和底部状态操作区组织�
   // 顶部栏中翻译 API 应位于操作图标组左侧，关闭按钮独占最右端。
   assert.ok(popup.indexOf('class="provider-bar"') < popup.indexOf('id="manual-mode"'))
   assert.ok(popup.indexOf('id="open-settings"') < popup.indexOf('id="close"'))
-  assert.match(popupCss, /#popup\s*\{[\s\S]*box-shadow:\s*var\(--shadow-overlay\)/u)
+  assert.match(popupCss, /#popup\s*\{[\s\S]*box-shadow:\s*var\(--floating-shadow\)/u)
   assert.match(popupCss, /\.header-action-button\s*\{[\s\S]*min-height:\s*var\(--control-height\)/u)
 })
 

@@ -3,6 +3,7 @@ import {
   Tray,
   Menu,
   nativeImage,
+  nativeTheme,
   net,
   globalShortcut,
   ipcMain,
@@ -24,6 +25,11 @@ import { copyFile, readFile, unlink, writeFile } from 'node:fs/promises'
 import { homedir, tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { promisify } from 'node:util'
+import { TranslationHistoryStore } from './translationHistory'
+import { VocabularyStore } from './vocabulary'
+import { exportVocabularyToFile } from './vocabularyExport'
+import { LocalSpeechEngine } from './localSpeech'
+import { createRepositoryStarsReader, PROJECT_REPOSITORY_URL, ORIGINAL_REPOSITORY_URL, MAINTAINER_PROFILE_URL } from './repositoryInfo'
 import { loadSettings, saveSettings, getSettings } from './settings'
 import { markHotkeyTrigger, recordTranslationUsage, recordWebPageUsage } from './usageReporter'
 import { maybeSendInstallUpgradeNotification } from './installUpgradeNotification'
@@ -417,6 +423,17 @@ function t(key: string, params?: Record<string, string | number>): string {
 
 const edgeSpeechClient = createEdgeSpeechClient({ socketFactory: createTranslationWebSocket })
 const edgeSpeechRequests = new Map<string, AbortController>()
+let localSpeechEngine: LocalSpeechEngine | null = null
+function getLocalSpeechEngine(): LocalSpeechEngine {
+  if (!localSpeechEngine) {
+    localSpeechEngine = new LocalSpeechEngine({
+      root: join(app.getPath('userData'), 'local-tts'),
+      helpers: app.isPackaged ? join(process.resourcesPath, 'local-tts') : join(app.getAppPath(), 'helpers/local-tts')
+    })
+    localSpeechEngine.on('status', status => broadcast('speech:local-status', status))
+  }
+  return localSpeechEngine
+}
 /** 主进程音标查询与受信任音频代理；网络请求复用现有翻译代理配置。 */
 const pronunciationService = new PronunciationService({
   fetch: translationFetch,
@@ -1204,6 +1221,8 @@ async function onReady(): Promise<boolean> {
   }
 
   loadSettings()
+  if (getSettings().speechProvider === 'local') void getLocalSpeechEngine().warmup()
+  nativeTheme.themeSource = getSettings().themeMode
   mainI18n = createMainI18nRuntime({
     getUiLocale: () => getSettings().uiLocale,
     localeSources: {
@@ -2129,6 +2148,19 @@ function handleSelectionCaptureResult(
   void translateText(result.text, result.anchor, undefined, 'selection', interactionToken)
 }
 
+let translationHistory: TranslationHistoryStore | null = null
+let vocabularyStore: VocabularyStore | null = null
+function getVocabularyStore(): VocabularyStore {
+  return vocabularyStore ??= new VocabularyStore(join(app.getPath('userData'), 'vocabulary.json'))
+}
+function getTranslationHistoryStore(): TranslationHistoryStore {
+  return translationHistory ??= new TranslationHistoryStore(join(app.getPath('userData'), 'translation-history.json'))
+}
+function recordTranslationHistory(entry: Parameters<TranslationHistoryStore['record']>[0]): void {
+  void getTranslationHistoryStore().record(entry).then(() => broadcast('history:changed', null))
+    .catch(() => console.warn('[history] 本机翻译记录暂时无法保存'))
+}
+
 /**
  * 翻译指定文本，并使用请求序号和关闭版本阻止旧结果覆盖新结果或重新打开已关闭弹窗。
  * @param text 待翻译文本。
@@ -2213,6 +2245,7 @@ async function translateText(
     )
     if (requestId !== latestTranslationRequest || closeVersion !== getPopupCloseVersion()) return
     recordTranslationUsage(origin, output.provider)
+    recordTranslationHistory({ original: text, translation: output.translation, sourceLang: output.detectedLang ?? pair.sourceLang, targetLang: pair.targetLang, provider: output.provider, origin })
     showPopup(
       {
         ok: true,
@@ -3448,6 +3481,7 @@ function showOcrTranslationResult(
     return
   }
   const pair = resolveLanguagePair(result.ocrText, sourcePreference, targetPreference)
+  recordTranslationHistory({ original: result.ocrText, translation: result.translation ?? '', sourceLang: result.detectedLang ?? pair.sourceLang, targetLang: pair.targetLang, provider: result.provider, origin: 'ocr' })
   showPopup({
     ok: true,
     origin: 'ocr',
@@ -4878,8 +4912,8 @@ async function createSettingsWindow(
   }
 
   const createdWindow = new BrowserWindow({
-    width: 900,
-    height: 820,
+    width: 1040,
+    height: 800,
     minWidth: 640,
     minHeight: 600,
     title: t('settings.windowTitle'),
@@ -4889,14 +4923,23 @@ async function createSettingsWindow(
     maximizable: true,
     fullscreenable: false,
     show: false,
-    backgroundColor: '#f5f7fa',
+    backgroundColor: '#fcfcfb',
+    ...(process.platform === 'darwin' ? {
+      titleBarStyle: 'hiddenInset' as const,
+      trafficLightPosition: { x: 16, y: 14 },
+      vibrancy: 'under-window' as const,
+      visualEffectState: 'followWindow' as const,
+      backgroundColor: '#00000000'
+    } : {}),
     webPreferences: {
       preload: PRELOAD_PATH,
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
+      autoplayPolicy: 'no-user-gesture-required'
     }
   })
   settingsWin = createdWindow
+  if (process.platform === 'darwin') createdWindow.setWindowButtonVisibility(true)
   // 必须在 loadRendererHtml 之前挂载监听，否则页面加载过快会漏掉 ready-to-show。
   const readyToShow = whenWindowReadyToShow(createdWindow)
 
@@ -5021,7 +5064,7 @@ async function openSettings(options: { bringToFront?: boolean; source?: 'popup' 
  * @returns 无返回值。
  * @author zhenghq
  */
-function openSettingsFromPopup(): void {
+function openSettingsFromPopup(tab?: 'vocabulary'): void {
   // 未固定时沿用「打开设置页后弹窗自动关闭」的既有行为：弹窗保持可见会让后续
   // 点击设置页落入全局按下关闭兜底，而 hidePopup() 的前台交还退化路径可能把
   // 设置页一起隐藏。固定（图钉）表示用户显式要求弹窗保持可见，内部窗口切换
@@ -5030,7 +5073,9 @@ function openSettingsFromPopup(): void {
   // 第二次打开时设置页已经可见，复用窗口的 show()/focus() 不保证再次派发
   // focus 事件；必须在隐藏弹窗后重新开启保护，覆盖复用窗口路径上的迟到 blur。
   beginPopupSettingsOpenGuard()
-  void openSettings({ bringToFront: true, source: 'popup' }).catch((error: unknown) => {
+  void openSettings({ bringToFront: true, source: 'popup' }).then(() => {
+    if (tab === 'vocabulary') settingsWin?.webContents.send('vocabulary:open-panel')
+  }).catch((error: unknown) => {
     endPopupSettingsOpenGuard()
     // 打开设置失败时无需打断用户当前翻译：保护已解除，后续失焦恢复既有语义；
     // 记录错误便于排查窗口创建失败（例如渲染进程加载异常）。
@@ -5390,6 +5435,8 @@ async function applySettingsPatch(patch: Partial<Settings>): Promise<Settings> {
     (patch.aiBaseUrl !== undefined && patch.aiBaseUrl !== previous.aiBaseUrl) ||
     (patch.aiModel !== undefined && patch.aiModel !== previous.aiModel)
   const settings = saveSettings(safePatch)
+  if (settings.speechProvider === 'local' && previous.speechProvider !== 'local') void getLocalSpeechEngine().warmup()
+  if (settings.themeMode !== previous.themeMode) nativeTheme.themeSource = settings.themeMode
   if (
     (patch.hotkey !== undefined && settings.hotkey !== previous.hotkey) ||
     (patch.ocrHotkey !== undefined && settings.ocrHotkey !== previous.ocrHotkey) ||
@@ -5629,6 +5676,32 @@ function registerIpc(): void {
   ipcMain.on('speech:edge-cancel', (_event, requestId: unknown) => {
     cancelEdgeSpeech(String(requestId ?? ''))
   })
+  ipcMain.handle('speech:local-status', () => getLocalSpeechEngine().status())
+  ipcMain.handle('speech:local-install', async () => {
+    const status = await getLocalSpeechEngine().install()
+    if (status.installed && status.phase === 'ready') {
+      const settings = saveSettings({ speechProvider: 'local' })
+      broadcast('settings:changed', settings)
+    }
+    return status
+  })
+  ipcMain.on('speech:local-install-cancel', () => getLocalSpeechEngine().cancelInstall())
+  ipcMain.on('speech:local-cancel', (event, requestId: unknown) => {
+    if (typeof requestId === 'string' && requestId.length <= 80) getLocalSpeechEngine().cancel(`${event.sender.id}:${requestId}`)
+  })
+  ipcMain.handle('speech:local-start', (event, requestId: unknown, text: unknown, language: unknown) => {
+    if (typeof requestId !== 'string' || requestId.length > 80 || typeof text !== 'string' || typeof language !== 'string') return { ok: false, error: 'invalid-request' }
+    const settings = getSettings()
+    const useChinese = /^zh/iu.test(language) || (language === 'auto' && /\p{Script=Han}/u.test(text))
+    const voice = useChinese ? settings.localSpeechVoice : /^ja/iu.test(language) ? 'ono_anna' : /^ko/iu.test(language) ? 'sohee' : settings.localSpeechEnglishVoice
+    const id = `${event.sender.id}:${requestId}`
+    const sender = event.sender
+    const cancel = (): void => getLocalSpeechEngine().cancel(id)
+    sender.once('destroyed', cancel)
+    return getLocalSpeechEngine().synthesize(id, text, voice, audio => {
+      if (!event.sender.isDestroyed()) event.sender.send('speech:local-chunk', { requestId, audio })
+    }).finally(() => sender.removeListener('destroyed', cancel))
+  })
   ipcMain.handle('speech:edge-synthesize', (_event, requestId: unknown, text: unknown, language: unknown) =>
     synthesizeEdgeSpeech(String(requestId ?? ''), String(text ?? ''), String(language ?? ''))
   )
@@ -5716,6 +5789,47 @@ function registerIpc(): void {
   ipcMain.handle('deeplx:check', () => checkDeepLx())
   ipcMain.handle('deeplx:docker-command', (_event, port: number) => buildDockerCommand(port))
   ipcMain.on('deeplx:open-doc', () => openDeployDoc())
+  ipcMain.handle('history:list', () => getTranslationHistoryStore().list())
+  ipcMain.on('vocabulary:open', () => openSettingsFromPopup('vocabulary'))
+  ipcMain.handle('vocabulary:list', () => getVocabularyStore().list())
+  ipcMain.handle('vocabulary:export', (event, request: unknown) => exportVocabularyToFile(request, {
+    entries: () => getVocabularyStore().list(),
+    chooseFile: async (options, extension) => {
+      const now = new Date()
+      const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+      const saveOptions = {
+        title: t('vocabulary.export.title'), defaultPath: `RinoNya-vocabulary-${options.format}-${stamp}.${extension}`,
+        filters: [{ name: t(`vocabulary.export.format.${options.format}`), extensions: [extension] }]
+      }
+      const owner = BrowserWindow.fromWebContents(event.sender)
+      const result = owner ? await dialog.showSaveDialog(owner, saveOptions) : await dialog.showSaveDialog(saveOptions)
+      return result.canceled ? null : result.filePath ?? null
+    }
+  }))
+  ipcMain.handle('vocabulary:add', async (_event, input: unknown) => {
+    const entry = await getVocabularyStore().add(input)
+    broadcast('vocabulary:changed', null)
+    return entry
+  })
+  ipcMain.handle('vocabulary:remove', async (_event, id: unknown) => {
+    await getVocabularyStore().remove(id)
+    broadcast('vocabulary:changed', null)
+  })
+  ipcMain.handle('vocabulary:review', async (_event, id: unknown, remembered: unknown) => {
+    const entry = await getVocabularyStore().review(id, remembered)
+    broadcast('vocabulary:changed', null)
+    return entry
+  })
+  ipcMain.handle('history:clear', async () => {
+    await getTranslationHistoryStore().clear()
+    broadcast('history:changed', null)
+  })
+  const getRepositoryStars = createRepositoryStarsReader(translationFetch)
+  ipcMain.handle('repository:get-stars', () => getRepositoryStars())
+  ipcMain.handle('repository:open-project', () => shell.openExternal(PROJECT_REPOSITORY_URL))
+  ipcMain.handle('repository:open-maintainer', () => shell.openExternal(MAINTAINER_PROFILE_URL))
+  ipcMain.handle('repository:open-email', () => shell.openExternal('mailto:Rino8bit@gmail.com'))
+  ipcMain.handle('repository:open-original', () => shell.openExternal(ORIGINAL_REPOSITORY_URL))
   ipcMain.handle('updater:get-status', () => getUpdateManager().getStatus())
   ipcMain.handle('updater:check', () => checkForApplicationUpdates())
   ipcMain.handle('updater:download', () => downloadApplicationUpdate())
@@ -5866,6 +5980,7 @@ function refreshTrayMenu(): void {
  * @author zhenghq
  */
 function cleanupBeforeQuit(): void {
+  localSpeechEngine?.dispose()
   webReader?.dispose()
   webReader = null
   selectionInteraction.invalidate()

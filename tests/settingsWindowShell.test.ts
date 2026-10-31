@@ -18,7 +18,7 @@ function getOpeningTag(html: string, id: string): string {
 
 test('设置页应提供统一的可拖动自绘标题栏和固定顺序窗口按钮', () => {
   const html = readFileSync('src/renderer/settings.html', 'utf8')
-  const css = readFileSync('src/renderer/src/settings.css', 'utf8')
+  const css = readFileSync('src/renderer/src/base.css', 'utf8') + readFileSync('src/renderer/src/settings.css', 'utf8')
   const titlebarIndex = html.indexOf('id="settings-titlebar"')
   const minimizeIndex = html.indexOf('id="window-minimize"')
   const maximizeIndex = html.indexOf('id="window-maximize"')
@@ -32,7 +32,7 @@ test('设置页应提供统一的可拖动自绘标题栏和固定顺序窗口�
   assert.match(getOpeningTag(html, 'window-maximize'), new RegExp(`aria-label="${tForTest('en-US', 'common.maximize')}"`, 'u'))
   assert.match(getOpeningTag(html, 'window-close'), new RegExp(`aria-label="${tForTest('en-US', 'common.close')}"`, 'u'))
   assert.match(html, /<svg[^>]+aria-hidden="true"/u)
-  assert.match(css, /\.window-titlebar\s*\{[\s\S]*height:\s*40px/u)
+  assert.match(css, /\.window-titlebar\s*\{[\s\S]*height:\s*var\(--titlebar-height\)/u)
   assert.match(css, /\.window-titlebar\s*\{[\s\S]*-webkit-app-region:\s*drag/u)
   assert.match(css, /\.window-controls[\s\S]*-webkit-app-region:\s*no-drag/u)
 })

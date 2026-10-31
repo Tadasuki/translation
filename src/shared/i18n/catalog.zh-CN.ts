@@ -1,4 +1,6 @@
 import { defineCatalog } from './catalog.ts'
+import { localSpeechZhCN } from './catalog.zh-CN.localSpeech.ts'
+import { vocabularyZhCN } from './catalog.zh-CN.vocabulary.ts'
 import { zhCNBase } from './catalog.zh-CN.base.ts'
 import { appZhCN } from './catalog.zh-CN.app.ts'
 import { aiZhCN } from './catalog.zh-CN.ai.ts'
@@ -16,6 +18,8 @@ import { webReaderZhCN } from './catalog.zh-CN.webReader.ts'
  * 基础词条保持原有键位，领域词条按模块拆分，便于多模块并行维护且避免键冲突。
  */
 export const zhCNCatalog = defineCatalog({
+  ...localSpeechZhCN,
+  ...vocabularyZhCN,
   ...zhCNBase,
   ...appZhCN,
   ...aiZhCN,

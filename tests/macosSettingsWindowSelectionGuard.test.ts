@@ -40,7 +40,7 @@ test('设置窗口保持普通窗口，翻译弹窗保留 nonactivating panel', 
   // 强制 CanJoinAllSpaces，导致设置页跑到所有桌面。设置窗口必须改回普通窗口；
   // 翻译弹窗仍需要跨桌面的浮层语义，因此保留 panel。
   assert.doesNotMatch(createSource, /type:\s*'panel'/u)
-  assert.match(popupCreateSource, /process\.platform\s*===\s*'darwin'\s*\?\s*\{\s*type:\s*'panel'\s*\}/u)
+  assert.match(popupCreateSource, /process\.platform\s*===\s*'darwin'\s*\?\s*\{\s*type:\s*'panel'\s*[,}]/u)
 })
 
 test('划词焦点挂起与恢复机制必须整体移除', () => {

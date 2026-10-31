@@ -1,4 +1,6 @@
 import { defineCatalog } from './catalog.ts'
+import { localSpeechEnUS } from './catalog.en-US.localSpeech.ts'
+import { vocabularyEnUS } from './catalog.en-US.vocabulary.ts'
 import { enUSBase } from './catalog.en-US.base.ts'
 import { appEnUS } from './catalog.en-US.app.ts'
 import { aiEnUS } from './catalog.en-US.ai.ts'
@@ -16,6 +18,8 @@ import { webReaderEnUS } from './catalog.en-US.webReader.ts'
  * 基础词条保持原有键位，领域词条按模块拆分，便于多模块并行维护且避免键冲突。
  */
 export const enUSCatalog = defineCatalog({
+  ...localSpeechEnUS,
+  ...vocabularyEnUS,
   ...enUSBase,
   ...appEnUS,
   ...aiEnUS,

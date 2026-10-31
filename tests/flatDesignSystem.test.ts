@@ -92,10 +92,10 @@ test('组件样式不得硬编码主题颜色', () => {
   }
 })
 
-test('sky 应作为默认现代蓝色基线', () => {
+test('铂金黑应作为默认的中性色基线', () => {
   const themeSource = readFileSync('src/renderer/src/theme.ts', 'utf8')
   const css = readFileSync('src/renderer/src/theme.css', 'utf8')
-  assert.match(themeSource, /DEFAULT_THEME(?:\s*:\s*ThemePreset)?\s*=\s*['"]sky['"]/u)
-  assert.match(css, /:root\s*\{[\s\S]*--button-bg:\s*#3b82f6/u)
+  assert.match(themeSource, /DEFAULT_THEME(?:\s*:\s*ThemePreset)?\s*=\s*['"]platinum-black['"]/u)
+  assert.match(css, /data-theme='platinum-black'\]\[data-theme-mode='light'\]\s*\{[^}]*--button-bg:\s*#292927/u)
   assert.match(css, /--accent-gradient:\s*linear-gradient\(135deg,\s*var\(--accent-start\),\s*var\(--accent-end\)\)/u)
 })
