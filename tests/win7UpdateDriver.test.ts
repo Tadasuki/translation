@@ -103,7 +103,7 @@ test('Win7 更新驱动应请求 GitHub latest Release 并带上兼容请求头'
   assert.equal(requests.length, 1)
   assert.equal(
     requests[0]?.url,
-    'https://api.github.com/repos/zhq734/translation/releases/latest'
+    'https://api.github.com/repos/Tadasuki/translation/releases/latest'
   )
   assert.equal(requests[0]?.init?.headers && new Headers(requests[0].init.headers).get('accept'), 'application/vnd.github+json')
   assert.equal(new Headers(requests[0]?.init?.headers).get('user-agent'), 'SelectionTranslator/1.2.5')
@@ -135,7 +135,7 @@ test('Win7 检查更新后应通过应用内操作打开 GitHub Release', async 
     currentVersion: '1.2.5',
     enabled: true,
     installMode: 'manual',
-    releaseUrl: 'https://github.com/zhq734/translation/releases/latest',
+    releaseUrl: 'https://github.com/Tadasuki/translation/releases/latest',
     openExternal: async (url) => {
       openedUrls.push(url)
     },
@@ -147,7 +147,7 @@ test('Win7 检查更新后应通过应用内操作打开 GitHub Release', async 
   assert.equal(manager.getStatus().updateAction, 'open-release')
 
   const status = await manager.downloadUpdate()
-  assert.deepEqual(openedUrls, ['https://github.com/zhq734/translation/releases/latest'])
+  assert.deepEqual(openedUrls, ['https://github.com/Tadasuki/translation/releases/latest'])
   assert.equal(status.phase, 'available')
   assert.match(status.message, /已打开 GitHub Release/u)
 })

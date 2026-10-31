@@ -132,7 +132,7 @@ npm run dist:win           # Windows 安装包
 npm run dist:linux         # Linux AppImage
 ```
 
-安装包以[本仓库 Releases](https://github.com/Tadasuki/translation/releases) 实际发布内容为准。继承的一键安装脚本和应用内更新源目前仍指向上游；本版源码启动与发布来源区别见[安装与发布指南](./docs/guide.zh-CN.md)。
+从 [Releases](https://github.com/Tadasuki/translation/releases/tag/v1.0.0) 下载匹配系统的安装包。一键安装与应用内更新均指向本仓库；各平台安装及 SHA-256 校验方式见[安装与发布指南](./docs/guide.zh-CN.md)。
 
 ## 详细文档
 

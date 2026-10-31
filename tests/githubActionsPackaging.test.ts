@@ -224,9 +224,9 @@ test('GitHub Actions 应在标签构建后发布 Release 与 SHA256SUMS', () => 
  */
 test('GitHub Actions 应先使用草稿 Release 上传全部资产再正式发布', () => {
   const workflow = readPackagingWorkflow()
-  const createIndex = workflow.indexOf('gh release create "$GITHUB_REF_NAME"')
-  const uploadIndex = workflow.indexOf('gh release upload "$GITHUB_REF_NAME"')
-  const publishIndex = workflow.indexOf('gh release edit "$GITHUB_REF_NAME" --draft=false')
+  const createIndex = workflow.indexOf('gh release create "$RELEASE_TAG"')
+  const uploadIndex = workflow.indexOf('gh release upload "$RELEASE_TAG"')
+  const publishIndex = workflow.indexOf('gh release edit "$RELEASE_TAG" --draft=false')
 
   assert.ok(createIndex >= 0)
   assert.match(workflow.slice(createIndex, uploadIndex), /--draft/u)
@@ -257,7 +257,7 @@ test('打包配置应生成 GitHub 自动更新元数据', () => {
   assert.deepEqual(packageJson.build?.publish, [
     {
       provider: 'github',
-      owner: 'zhq734',
+      owner: 'Tadasuki',
       repo: 'translation'
     }
   ])
@@ -280,4 +280,17 @@ test('打包配置应生成 GitHub 自动更新元数据', () => {
   assert.notEqual(packageJson.build?.mac?.identity, null)
   assert.equal(packageJson.build?.mac?.hardenedRuntime, true)
   assert.equal(packageJson.build?.mac?.notarize, true)
+})
+
+test('手动发布应在构建成功后创建固定源码标签并保留草稿供验证', () => {
+  const workflow = readPackagingWorkflow()
+  assert.match(workflow, /create_release:[\s\S]*?type: boolean/u)
+  assert.match(workflow, /if: startsWith\(github\.ref, 'refs\/tags\/'\) \|\| inputs\.create_release/u)
+  const release = workflow.slice(workflow.indexOf('  release:'))
+  assert.match(release, /needs: package/u)
+  assert.match(release, /RELEASE_TAG=v\$VERSION/u)
+  assert.match(release, /ref=refs\/tags\/\$RELEASE_TAG/u)
+  assert.match(release, /sha=\$GITHUB_SHA/u)
+  assert.match(release, /refusing to move it/u)
+  assert.match(release, /NEW_RELEASE.*GITHUB_REF.*refs\/tags/u)
 })

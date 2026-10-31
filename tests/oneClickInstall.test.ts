@@ -225,7 +225,7 @@ fi
 test('Linux 与 macOS 一键安装脚本应检测平台架构并校验 SHA-256', () => {
   const script = readRepositoryFile('scripts/install.sh')
 
-  assert.match(script, /zhq734\/translation/u)
+  assert.match(script, /Tadasuki\/translation/u)
   assert.match(script, /SELECTION_TRANSLATOR_VERSION/u)
   assert.match(script, /GROKBUILD_VERSION/u)
   assert.match(script, /uname -s/u)
@@ -253,7 +253,7 @@ function runResolveVersion(
   // 函数依赖脚本顶部的 REQUESTED_VERSION/REPOSITORY 变量初始化，测试时需要一并注入。
   const snippet = [
     'REQUESTED_VERSION="${SELECTION_TRANSLATOR_VERSION:-${GROKBUILD_VERSION:-latest}}"',
-    'REPOSITORY="${SELECTION_TRANSLATOR_REPOSITORY:-zhq734/translation}"',
+    'REPOSITORY="${SELECTION_TRANSLATOR_REPOSITORY:-Tadasuki/translation}"',
     match[0],
     'resolve_version'
   ].join('\n')
@@ -282,7 +282,7 @@ test('Linux 一键安装脚本不应把大写 V 标签解析成 vV 前缀', () =
     // latest 解析路径应原样返回 GitHub 重定向后的大写 V 标签。
     writeFileSync(
       fakeCurlPath,
-      '#!/bin/sh\nprintf \'%s\\n\' \'https://github.com/zhq734/translation/releases/tag/V1.1.5\'\n'
+      '#!/bin/sh\nprintf \'%s\\n\' \'https://github.com/Tadasuki/translation/releases/tag/V1.1.5\'\n'
     )
     chmodSync(fakeCurlPath, 0o755)
 
@@ -390,7 +390,7 @@ esac
 test('Windows 一键安装脚本应检测架构并校验 SHA-256', () => {
   const script = readRepositoryFile('scripts/install.ps1')
 
-  assert.match(script, /zhq734\/translation/u)
+  assert.match(script, /Tadasuki\/translation/u)
   assert.match(script, /SELECTION_TRANSLATOR_VERSION/u)
   assert.match(script, /GROKBUILD_VERSION/u)
   assert.match(script, /PROCESSOR_ARCHITEW6432/u)
@@ -500,14 +500,14 @@ test('中英文安装指南都应保留一键安装命令和固定版本示例',
   for (const readme of readmes) {
     assert.match(
       readme,
-      /https:\/\/raw\.githubusercontent\.com\/zhq734\/translation\/master\/scripts\/install\.sh/u
+      /https:\/\/raw\.githubusercontent\.com\/Tadasuki\/translation\/main\/scripts\/install\.sh/u
     )
     assert.match(
       readme,
-      /https:\/\/raw\.githubusercontent\.com\/zhq734\/translation\/master\/scripts\/install\.ps1/u
+      /https:\/\/raw\.githubusercontent\.com\/Tadasuki\/translation\/main\/scripts\/install\.ps1/u
     )
-    assert.match(readme, /SELECTION_TRANSLATOR_VERSION=v0\.2\.0/u)
-    assert.match(readme, /GROKBUILD_VERSION=v0\.2\.0/u)
+    assert.match(readme, /SELECTION_TRANSLATOR_VERSION=v1\.0\.0/u)
+    assert.match(readme, /GROKBUILD_VERSION=v1\.0\.0/u)
     assert.match(readme, /SHA-256/u)
   }
 })

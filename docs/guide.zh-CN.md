@@ -4,7 +4,7 @@
 
 本页保留原项目的安装、服务配置、权限、打包与故障排查说明。RinoNya v1.0.0 的界面与新增功能请阅读[新版 README](../README.zh-CN.md)；另见[本地语音](./local-speech.md)和[生词本导出](./vocabulary-export.md)说明。
 
-**发布来源说明：**继承的一键安装脚本及应用内更新器仍默认使用 `zhq734/translation`。下方使用上游 Raw 地址的命令安装的是上游版本。使用本版请按 README 从源码运行；只有本仓库已发布兼容安装包时，才通过 `SELECTION_TRANSLATOR_REPOSITORY=Tadasuki/translation` 指向本仓库。推送源码本身不会生成安装包。
+**发布来源说明：**一键安装脚本与应用内更新器均使用 `Tadasuki/translation`。请从本仓库 Releases 下载匹配系统的 v1.0.0 安装包。可通过 `SELECTION_TRANSLATOR_REPOSITORY=owner/repository` 覆盖安装来源；本地语音模型不包含在安装包内，首次启用时另行下载。
 
 ---
 
@@ -18,14 +18,14 @@
 
 ```bash
 curl -fsSL \
-  https://raw.githubusercontent.com/zhq734/translation/master/scripts/install.sh \
+  https://raw.githubusercontent.com/Tadasuki/translation/main/scripts/install.sh \
   | sh
 ```
 
 **Windows PowerShell：**
 
 ```powershell
-irm https://raw.githubusercontent.com/zhq734/translation/master/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/Tadasuki/translation/main/scripts/install.ps1 | iex
 ```
 
 > Windows Terminal 只是终端窗口，请确认当前标签页使用的是 **Windows PowerShell** 或 **PowerShell 7**。不要把上面的命令直接粘贴到 CMD、Git Bash 或 WSL；`irm` 和 `iex` 是 PowerShell 命令别名。
@@ -33,31 +33,31 @@ irm https://raw.githubusercontent.com/zhq734/translation/master/scripts/install.
 如果当前打开的是 CMD，也可以直接运行下面的命令启动 PowerShell 安装：
 
 ```cmd
-powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod 'https://raw.githubusercontent.com/zhq734/translation/master/scripts/install.ps1' | Invoke-Expression"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod 'https://raw.githubusercontent.com/Tadasuki/translation/main/scripts/install.ps1' | Invoke-Expression"
 ```
 
 如需固定版本，可设置 `SELECTION_TRANSLATOR_VERSION`（支持带或不带 `v` 前缀）。为兼容既有一键安装命令，也接受 `GROKBUILD_VERSION`。如项目迁移到其他 GitHub 仓库，可设置 `SELECTION_TRANSLATOR_REPOSITORY=owner/repository`：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/zhq734/translation/master/scripts/install.sh \
-  | SELECTION_TRANSLATOR_VERSION=v0.2.0 sh
+curl -fsSL https://raw.githubusercontent.com/Tadasuki/translation/main/scripts/install.sh \
+  | SELECTION_TRANSLATOR_VERSION=v1.0.0 sh
 ```
 
 ```powershell
 $env:SELECTION_TRANSLATOR_VERSION = 'v0.2.0'
-irm https://raw.githubusercontent.com/zhq734/translation/master/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/Tadasuki/translation/main/scripts/install.ps1 | iex
 ```
 
 兼容命名也可以直接固定版本：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/zhq734/translation/master/scripts/install.sh \
-  | GROKBUILD_VERSION=v0.2.0 sh
+curl -fsSL https://raw.githubusercontent.com/Tadasuki/translation/main/scripts/install.sh \
+  | GROKBUILD_VERSION=v1.0.0 sh
 ```
 
 ```powershell
 $env:GROKBUILD_VERSION = 'v0.2.0'
-irm https://raw.githubusercontent.com/zhq734/translation/master/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/Tadasuki/translation/main/scripts/install.ps1 | iex
 ```
 
 Linux 会安装 AppImage 到 `~/.local/bin/selection-translator` 并创建桌面入口；macOS 默认安装到 `~/Applications`；Windows 会静默运行 NSIS 安装程序并创建开始菜单/桌面快捷方式。macOS 首次启动仍需在“系统设置 → 隐私与安全性 → 辅助功能”中授权。

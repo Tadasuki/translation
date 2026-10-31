@@ -130,7 +130,7 @@ npm run dist:win           # Windows installer
 npm run dist:linux         # Linux AppImage
 ```
 
-Check this repository’s [Releases](https://github.com/Tadasuki/translation/releases) for actual published installers. The inherited installer and in-app updater still use upstream release sources; see the [installation and release guide](./docs/guide.en.md) before using those paths with this edition.
+Download the matching installer from [Releases](https://github.com/Tadasuki/translation/releases/tag/v1.0.0). The installer and in-app updater use this repository. See the [installation and release guide](./docs/guide.en.md) for platform-specific steps and SHA-256 verification.
 
 ## Documentation
 

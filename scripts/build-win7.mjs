@@ -249,6 +249,8 @@ function verifyWin7Package() {
     '/out/main/win7UpdateDriver-',
     '/out/main/ocrDispatcher-',
     '/out/main/tesseractOcr-',
+    '/node_modules/sql.js/dist/sql-wasm-inline.js',
+    '/node_modules/fflate/package.json',
     '/node_modules/uiohook-napi/package.json',
     '/node_modules/koffi/package.json',
     '/node_modules/tesseract.js/package.json',

@@ -1,5 +1,5 @@
 $ErrorActionPreference = 'Stop'
-$Repository = if ($env:SELECTION_TRANSLATOR_REPOSITORY) { $env:SELECTION_TRANSLATOR_REPOSITORY } else { 'zhq734/translation' }
+$Repository = if ($env:SELECTION_TRANSLATOR_REPOSITORY) { $env:SELECTION_TRANSLATOR_REPOSITORY } else { 'Tadasuki/translation' }
 $RequestedVersion = if ($env:SELECTION_TRANSLATOR_VERSION) { $env:SELECTION_TRANSLATOR_VERSION } elseif ($env:GROKBUILD_VERSION) { $env:GROKBUILD_VERSION } else { 'latest' }
 $ProductName = '划词翻译'
 $TemporaryDirectory = $null

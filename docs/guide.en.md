@@ -4,7 +4,7 @@
 
 This guide retains the original project’s detailed installation, provider, permission, packaging and troubleshooting instructions. For the RinoNya v1.0.0 interface and new features, start with the [README](../README.md). Local speech and vocabulary exports have their own [speech](./local-speech.md) and [export](./vocabulary-export.md) guides.
 
-**Release source:** the inherited one-click installer and in-app updater still default to `zhq734/translation`. The commands below that use upstream Raw URLs install that upstream edition. To work on this fork, use the source-build steps in the README. Set `SELECTION_TRANSLATOR_REPOSITORY=Tadasuki/translation` only when this fork has compatible Release assets; no installer is published by a source push alone.
+**Release source:** the installer and in-app updater use `Tadasuki/translation`. Download the matching v1.0.0 installer from this repository’s Releases. You can override the installer source with `SELECTION_TRANSLATOR_REPOSITORY=owner/repository`. The source repository does not include downloaded local-speech models.
 
 ---
 
@@ -18,14 +18,14 @@ The installer detects the operating system and CPU architecture, downloads the m
 
 ```bash
 curl -fsSL \
-  https://raw.githubusercontent.com/zhq734/translation/master/scripts/install.sh \
+  https://raw.githubusercontent.com/Tadasuki/translation/main/scripts/install.sh \
   | sh
 ```
 
 **Windows PowerShell:**
 
 ```powershell
-irm https://raw.githubusercontent.com/zhq734/translation/master/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/Tadasuki/translation/main/scripts/install.ps1 | iex
 ```
 
 > Windows Terminal is only a terminal host. Make sure the current tab uses **Windows PowerShell** or **PowerShell 7**. Do not paste the command above directly into Command Prompt, Git Bash, or WSL; `irm` and `iex` are PowerShell aliases.
@@ -33,31 +33,31 @@ irm https://raw.githubusercontent.com/zhq734/translation/master/scripts/install.
 If the current shell is Command Prompt, run the following command to start the installer through PowerShell:
 
 ```cmd
-powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod 'https://raw.githubusercontent.com/zhq734/translation/master/scripts/install.ps1' | Invoke-Expression"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod 'https://raw.githubusercontent.com/Tadasuki/translation/main/scripts/install.ps1' | Invoke-Expression"
 ```
 
 Pin a version with `SELECTION_TRANSLATOR_VERSION` (with or without the `v` prefix). For compatibility with existing one-click commands, `GROKBUILD_VERSION` is also accepted. If the project moves to another GitHub repository, set `SELECTION_TRANSLATOR_REPOSITORY=owner/repository`:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/zhq734/translation/master/scripts/install.sh \
-  | SELECTION_TRANSLATOR_VERSION=v0.2.0 sh
+curl -fsSL https://raw.githubusercontent.com/Tadasuki/translation/main/scripts/install.sh \
+  | SELECTION_TRANSLATOR_VERSION=v1.0.0 sh
 ```
 
 ```powershell
 $env:SELECTION_TRANSLATOR_VERSION = 'v0.2.0'
-irm https://raw.githubusercontent.com/zhq734/translation/master/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/Tadasuki/translation/main/scripts/install.ps1 | iex
 ```
 
 The compatibility variable can also pin the version directly:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/zhq734/translation/master/scripts/install.sh \
-  | GROKBUILD_VERSION=v0.2.0 sh
+curl -fsSL https://raw.githubusercontent.com/Tadasuki/translation/main/scripts/install.sh \
+  | GROKBUILD_VERSION=v1.0.0 sh
 ```
 
 ```powershell
 $env:GROKBUILD_VERSION = 'v0.2.0'
-irm https://raw.githubusercontent.com/zhq734/translation/master/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/Tadasuki/translation/main/scripts/install.ps1 | iex
 ```
 
 Linux installs an AppImage at `~/.local/bin/selection-translator` and creates a desktop entry. macOS installs to `~/Applications` by default. Windows silently runs the NSIS installer and creates Start Menu/desktop shortcuts. macOS still requires Accessibility permission on first launch.

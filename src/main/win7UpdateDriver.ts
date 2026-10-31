@@ -8,7 +8,7 @@ import type {
 } from './updateManager'
 
 /** GitHub latest Release API 地址；Win7 轻量更新只读取公开元数据。 */
-const WIN7_RELEASE_API_URL = 'https://api.github.com/repos/zhq734/translation/releases/latest'
+const WIN7_RELEASE_API_URL = 'https://api.github.com/repos/Tadasuki/translation/releases/latest'
 
 /** 兼容测试注入与 Electron Session 的 fetch 函数签名。 */
 export type Win7UpdateFetch = (

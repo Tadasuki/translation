@@ -11,7 +11,7 @@ import { createBuildMetadata } from '../src/shared/buildMetadata.ts'
 import type { BuildMetadata } from '../src/shared/buildMetadata.ts'
 import type { UpdateProgress, UpdateStatus } from '../src/shared/types.ts'
 
-const DMG_URL = 'https://github.com/zhq734/translation/releases/download/V1.1.2/SelectionTranslator-1.1.2-mac-arm64.dmg'
+const DMG_URL = 'https://github.com/Tadasuki/translation/releases/download/V1.1.2/SelectionTranslator-1.1.2-mac-arm64.dmg'
 
 class RecordingDriver implements UpdateDriver {
   listeners: UpdateDriverListeners | null = null
@@ -118,7 +118,7 @@ function createManager(
     currentVersion: '1.1.2',
     enabled: true,
     installMode,
-    releaseUrl: 'https://github.com/zhq734/translation/releases/latest',
+    releaseUrl: 'https://github.com/Tadasuki/translation/releases/latest',
     manualUpdate: withManualUpdate ? manualUpdate : undefined,
     openExternal: async (url) => {
       openedUrls.push(url)
@@ -241,7 +241,7 @@ test('Windows 与 Linux 同版本新构建只应打开 GitHub Release', async ()
 
   assert.equal(driver.downloadCount, 0)
   assert.equal(driver.installCount, 0)
-  assert.deepEqual(openedUrls, ['https://github.com/zhq734/translation/releases/latest'])
+  assert.deepEqual(openedUrls, ['https://github.com/Tadasuki/translation/releases/latest'])
   assert.match(manager.getStatus().message, /GitHub Release/u)
 })
 
@@ -259,7 +259,7 @@ test('macOS 缺少安全 DMG 目标时同版本新构建应回退到 Release 页
   await manager.downloadUpdate()
 
   assert.equal(manualUpdate.calls.length, 0)
-  assert.deepEqual(openedUrls, ['https://github.com/zhq734/translation/releases/latest'])
+  assert.deepEqual(openedUrls, ['https://github.com/Tadasuki/translation/releases/latest'])
 })
 
 test('同版本新构建不得触发自动安装', () => {
@@ -302,7 +302,7 @@ test('同版本新构建下载失败应转为错误状态且保留手动入口',
     currentVersion: '1.1.2',
     enabled: true,
     installMode: 'manual',
-    releaseUrl: 'https://github.com/zhq734/translation/releases/latest',
+    releaseUrl: 'https://github.com/Tadasuki/translation/releases/latest',
     manualUpdate: {
       /**
        * 模拟手动下载失败。

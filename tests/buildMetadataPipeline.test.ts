@@ -235,7 +235,7 @@ test('Release 阶段应生成、校验并覆盖上传 build-info.json 资产', (
 
   assert.match(releaseSection, /node scripts\/generate-build-info\.mjs[\s\S]*release-assets\/build-info\.json/u)
   assert.match(releaseSection, /--check/u)
-  assert.match(releaseSection, /gh release upload "\$GITHUB_REF_NAME" release-assets\/\* --clobber/u)
+  assert.match(releaseSection, /gh release upload "\$RELEASE_TAG" release-assets\/\* --clobber/u)
   const checksumIndex = releaseSection.indexOf('generate-checksums.mjs')
   const verifyIndex = releaseSection.indexOf('--check')
   assert.ok(checksumIndex >= 0 && verifyIndex > checksumIndex, 'build-info 校验应在生成 SHA256SUMS 之后执行')

@@ -9,6 +9,8 @@ directories:
   buildResources: build
 files:
   - out/**/*
+  - node_modules/sql.js/**/*
+  - node_modules/fflate/**/*
   - node_modules/uiohook-napi/**/*
   - node_modules/koffi/**/*
   - node_modules/@koromix/koffi-win32-x64/**/*

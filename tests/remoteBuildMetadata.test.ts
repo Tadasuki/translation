@@ -30,7 +30,7 @@ function createAsset(
 ): ReleaseBuildMetadataAsset {
   return {
     name: 'build-info.json',
-    browser_download_url: 'https://github.com/zhq734/translation/releases/download/V1.1.2/build-info.json',
+    browser_download_url: 'https://github.com/Tadasuki/translation/releases/download/V1.1.2/build-info.json',
     digest: `sha256:${metadataDigest}`,
     ...overrides
   }

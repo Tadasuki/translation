@@ -1366,7 +1366,7 @@ async function onReady(): Promise<boolean> {
       enabled: app.isPackaged,
       // manual 模式发现新版后由 UpdateManager 设置 updateAction: 'open-release'。
       installMode: 'manual',
-      releaseUrl: 'https://github.com/zhq734/translation/releases/latest',
+      releaseUrl: 'https://github.com/Tadasuki/translation/releases/latest',
       isOnline: () => net.isOnline(),
       getTranslator: () => mainI18n?.translator ?? createTranslator('zh-CN'),
       openExternal: async (url) => {

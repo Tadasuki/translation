@@ -45,26 +45,26 @@ test('手动更新应优先选择当前架构 DMG，并能从同名 ZIP 推导 D
 })
 
 test('手动更新应使用 Release 下载基准地址解析相对 DMG，并优先选择当前架构', () => {
-  const releaseDownloadBaseUrl = 'https://github.com/zhq734/translation/releases/latest/download/'
+  const releaseDownloadBaseUrl = 'https://github.com/Tadasuki/translation/releases/latest/download/'
 
   assert.equal(
     resolveManualMacDmgUrl([
       { url: 'SelectionTranslator-1.0.4-mac-x64.dmg' },
       { url: 'SelectionTranslator-1.0.4-mac-arm64.dmg' }
     ], 'arm64', releaseDownloadBaseUrl),
-    'https://github.com/zhq734/translation/releases/latest/download/SelectionTranslator-1.0.4-mac-arm64.dmg'
+    'https://github.com/Tadasuki/translation/releases/latest/download/SelectionTranslator-1.0.4-mac-arm64.dmg'
   )
 })
 
 test('手动更新应使用 Release 下载基准地址从相对 ZIP 推导 DMG 地址', () => {
-  const releaseDownloadBaseUrl = 'https://github.com/zhq734/translation/releases/latest/download/'
+  const releaseDownloadBaseUrl = 'https://github.com/Tadasuki/translation/releases/latest/download/'
 
   assert.equal(
     resolveManualMacDmgUrl([
       { url: 'SelectionTranslator-1.0.4-mac-x64.zip' },
       { url: 'SelectionTranslator-1.0.4-mac-arm64.zip' }
     ], 'arm64', releaseDownloadBaseUrl),
-    'https://github.com/zhq734/translation/releases/latest/download/SelectionTranslator-1.0.4-mac-arm64.dmg'
+    'https://github.com/Tadasuki/translation/releases/latest/download/SelectionTranslator-1.0.4-mac-arm64.dmg'
   )
 })
 
@@ -81,7 +81,7 @@ test('手动更新不应改变更新清单中的绝对 HTTPS 地址', () => {
   assert.equal(
     resolveManualMacDmgUrl([
       { url: 'https://example.com/releases/SelectionTranslator-1.0.4-mac-arm64.dmg?download=1' }
-    ], 'arm64', 'https://github.com/zhq734/translation/releases/latest/download/'),
+    ], 'arm64', 'https://github.com/Tadasuki/translation/releases/latest/download/'),
     'https://example.com/releases/SelectionTranslator-1.0.4-mac-arm64.dmg?download=1'
   )
 })

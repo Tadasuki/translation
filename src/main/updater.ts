@@ -62,10 +62,10 @@ export interface UpdateDriverLogger {
 /** 默认静默日志器，避免 electron-updater 在离线启动时刷出完整错误堆栈。 */
 const silentUpdateLogger: UpdateDriverLogger = { warn: () => undefined }
 
-const RELEASE_URL = 'https://github.com/zhq734/translation/releases/latest'
+const RELEASE_URL = 'https://github.com/Tadasuki/translation/releases/latest'
 const RELEASE_DOWNLOAD_BASE_URL = `${RELEASE_URL}/download/`
 const RELEASE_CHECKSUMS_URL = `${RELEASE_DOWNLOAD_BASE_URL}SHA256SUMS`
-const RELEASE_API_URL = 'https://api.github.com/repos/zhq734/translation/releases/latest'
+const RELEASE_API_URL = 'https://api.github.com/repos/Tadasuki/translation/releases/latest'
 const execFileAsync = promisify(execFile)
 
 /**

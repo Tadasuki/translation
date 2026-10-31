@@ -92,7 +92,7 @@ function createManualManager(): {
     currentVersion: '1.0.3',
     enabled: true,
     installMode: 'manual',
-    releaseUrl: 'https://github.com/zhq734/translation/releases/latest',
+    releaseUrl: 'https://github.com/Tadasuki/translation/releases/latest',
     manualUpdate,
     openExternal: async () => {},
     onStatusChanged: (status) => statuses.push(status)

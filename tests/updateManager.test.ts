@@ -139,7 +139,7 @@ function createManager(
     currentVersion: '1.0.3',
     enabled,
     installMode,
-    releaseUrl: 'https://github.com/zhq734/translation/releases/latest',
+    releaseUrl: 'https://github.com/Tadasuki/translation/releases/latest',
     manualUpdate,
     ...(getTranslator ? { getTranslator } : { translator: createTranslator(locale) }),
     openExternal: async (url) => {
@@ -281,7 +281,7 @@ test('开发环境应返回禁用状态且不得请求远程更新', async () =>
     phase: 'disabled',
     currentVersion: '1.0.3',
     installMode: 'disabled',
-    releaseUrl: 'https://github.com/zhq734/translation/releases/latest',
+    releaseUrl: 'https://github.com/Tadasuki/translation/releases/latest',
     message: tForTest('zh-CN', 'update.disabled')
   })
 
@@ -492,14 +492,14 @@ test('手动安装模式应下载 DMG 到本地并打开安装界面', async () 
 
   driver.listeners?.available({
     version: '1.0.4',
-    manualDownloadUrl: 'https://github.com/zhq734/translation/releases/download/v1.0.4/SelectionTranslator-1.0.4-mac-arm64.dmg'
+    manualDownloadUrl: 'https://github.com/Tadasuki/translation/releases/download/v1.0.4/SelectionTranslator-1.0.4-mac-arm64.dmg'
   })
   await manager.downloadUpdate()
 
   assert.equal(driver.downloadCount, 0)
   assert.deepEqual(openedUrls, [])
   assert.deepEqual(manualUpdate.calls, [{
-    url: 'https://github.com/zhq734/translation/releases/download/v1.0.4/SelectionTranslator-1.0.4-mac-arm64.dmg',
+    url: 'https://github.com/Tadasuki/translation/releases/download/v1.0.4/SelectionTranslator-1.0.4-mac-arm64.dmg',
     version: '1.0.4'
   }])
   assert.equal(manualUpdate.progressCallbacks, 1)
@@ -528,7 +528,7 @@ test('离线时不应发起更新检查，也不应产生错误状态', async ()
     currentVersion: '1.0.3',
     enabled: true,
     installMode: 'automatic',
-    releaseUrl: 'https://github.com/zhq734/translation/releases/latest',
+    releaseUrl: 'https://github.com/Tadasuki/translation/releases/latest',
     isOnline: () => false,
     openExternal: async () => undefined,
     onStatusChanged: (status) => statuses.push(status)
@@ -552,7 +552,7 @@ test('在线时应照常发起更新检查', async () => {
     currentVersion: '1.0.3',
     enabled: true,
     installMode: 'automatic',
-    releaseUrl: 'https://github.com/zhq734/translation/releases/latest',
+    releaseUrl: 'https://github.com/Tadasuki/translation/releases/latest',
     isOnline: () => true,
     openExternal: async () => undefined,
     onStatusChanged: () => undefined
@@ -692,7 +692,7 @@ test('macOS 更新包签名不匹配时应切换为手动安装模式', async ()
 
   driver.listeners?.available({
     version: '1.0.4',
-    manualDownloadUrl: 'https://github.com/zhq734/translation/releases/download/v1.0.4/SelectionTranslator-1.0.4-mac-arm64.dmg'
+    manualDownloadUrl: 'https://github.com/Tadasuki/translation/releases/download/v1.0.4/SelectionTranslator-1.0.4-mac-arm64.dmg'
   })
 
   driver.listeners?.error(new Error(
